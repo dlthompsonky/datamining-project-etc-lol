@@ -10,7 +10,6 @@ region = 'na1'
 me = lolWatcher_api_key.summoner.by_name(region, 'Sobileo')
 
 print(me)
-print(lolWatcher_api_key.league.)
 
 
 
