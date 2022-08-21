@@ -23,6 +23,7 @@ list_of_puuids = []
 list_of_matches = []
 list_of_matches_from_file = []
 
+
 def areThereMatchDuplicates():
     dataFile = open("D:\PyCharmProjects\DataScienceProject\dataFile.txt", 'r')
     list_of_matches_from_file = dataFile.readlines()
@@ -59,9 +60,12 @@ def printListOfSummoners(): #Prints list of the summoner objects (This includes 
     checkForTextFile()
 
 
-#checkForTextFile()
-printListOfSummoners()
+def collectChampionList():
+    #Todo (more in discord)
 
+
+#printListOfSummoners()
+collectChampionList()
 
 
 
