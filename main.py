@@ -5,11 +5,32 @@ import sys
 from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
 from os.path import exists
 import json
+import urllib.request
+from urllib.error import HTTPError
+import time
 
 #Need to make sure to put this all within try function in order to keep errors minimmal
 
-lolWatcher_api_key = LolWatcher('RGAPI-704ce981-8404-4b57-bf27-21e702fed59b')
-region = 'na1' #Working with the north american region
+
+class WinningComp:
+    topLaner = ''
+    jungler = ''
+    midLaner = ''
+    botLaner = ''
+    support = ''
+
+
+class LosingComp:
+    topLaner = ''
+    jungler = ''
+    midLaner = ''
+    botLaner = ''
+    support = ''
+
+
+api_key = 'RGAPI-07230a07-25cc-4bec-b1a9-738de3de27c6'
+lolWatcher_api_key = LolWatcher(api_key)
+region = 'na1'   #Working with the north american region
 
 
 list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
@@ -60,18 +81,76 @@ def printListOfSummoners(): #Prints list of the summoner objects (This includes 
     checkForTextFile()
 
 
-def collectChampionList():
-    #Todo (more in discord)
+url_list = []
+
+def createRiotAPIUrl():
+    for x_match in list_of_matches:
+        url_list.append('https://americas.api.riotgames.com/lol/match/v5/matches/' + str(x_match) + '?api_key=' + str(api_key))
 
 
-#printListOfSummoners()
-collectChampionList()
+list_of_all_champions = []
+list_of_winning_comps = []
+list_of_losing_comps = []
+def getChampionList():
+    try:
+        for x_url in url_list:
+            #print("Looping")
+            time.sleep(1) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
+            with urllib.request.urlopen(x_url) as url:
+                data = json.loads(url.read().decode())
+                wc = WinningComp()
+                lc = LosingComp()
+                for i in range(0, 10):
+                    if data['info']['participants'][i]['win'] is True:
+                        if data['info']['participants'][i]['individualPosition'] == "TOP":
+                            wc.topLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "JUNGLE":
+                            wc.jungler = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "MIDDLE":
+                            wc.midLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "BOTTOM":
+                            wc.botLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "UTILITY":
+                            wc.support = data['info']['participants'][i]['championName']
+                    elif data['info']['participants'][i]['win'] is False:
+                        if data['info']['participants'][i]['individualPosition'] == "TOP":
+                            lc.topLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "JUNGLE":
+                            lc.jungler = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "MIDDLE":
+                            lc.midLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "BOTTOM":
+                            lc.botLaner = data['info']['participants'][i]['championName']
+                        elif data['info']['participants'][i]['individualPosition'] == "UTILITY":
+                            lc.support = data['info']['participants'][i]['championName']
+                    list_of_all_champions.append(data['info']['participants'][i]['championName'])
+                list_of_winning_comps.append(wc)
+                list_of_losing_comps.append(lc)
+    except HTTPError as err:
+        print(err) #There is better error handling than this. Just using pass as placement for big issues right now.
+        pass
 
 
+def printWinningCompJunglers():
+    for wc in list_of_winning_comps:
+        print(str(wc.jungler))
 
 
-
-
+try:
+    printListOfSummoners()
+    time.sleep(2.5)
+    createRiotAPIUrl()
+    time.sleep(2.5)
+    getChampionList()
+    printWinningCompJunglers()
+except HTTPError as err:
+    if err.code == 429:
+        time.sleep(120)
+        print("Requesting too much")
+        pass
+    else:
+        print(err.code)
+        pass
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
