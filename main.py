@@ -1,15 +1,28 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import csv
 import sys
-
 from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
 from os.path import exists
 import json
 import urllib.request
 from urllib.error import HTTPError
 import time
+#below are the Data-Plotting modules:
+import numpy as np
+import seaborn as sns
+import matplotlib.pylab as plt
+import pandas as pd
 
-#Need to make sure to put this all within try function in order to keep errors minimmal
+plt.style.use("seaborn")
+
+field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support']
+def initializeWinningCompFileHeader():
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\winningComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w') as csvFile:
+            writer = csv.writer(csvFile)
+            writer.writerow(field_names_for_team_comps)
+            print("Initializing Winning Comp File & Header")
 
 
 class WinningComp:
@@ -18,6 +31,12 @@ class WinningComp:
     midLaner = ''
     botLaner = ''
     support = ''
+    dataToBeWritten = [str(topLaner), str(jungler), str(midLaner), str(botLaner), str(support)]
+    def writeCSVofteam(self):
+        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w') as csvFile:
+            skipHeader = pd.read_csv(csvFile, skiprows=0)
+            writer = csv.writer(csvFile)
+            writer.writerow(WinningComp.dataToBeWritten)
 
 
 class LosingComp:
@@ -28,7 +47,7 @@ class LosingComp:
     support = ''
 
 
-api_key = 'RGAPI-07230a07-25cc-4bec-b1a9-738de3de27c6'
+api_key = 'RGAPI-5f6fa0f8-297a-4bd9-964f-9e413f7b567c'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -40,15 +59,21 @@ list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
                      lolWatcher_api_key.summoner.by_name(region, 'Airpiane'),
                      lolWatcher_api_key.summoner.by_name(region, 'Ominous Cow')]
 
+
+#Lists being used below
 list_of_puuids = []
 list_of_matches = []
 list_of_matches_from_file = []
+url_list = []
+list_of_all_champions = []
+list_of_winning_comps = []
+list_of_losing_comps = []
 
 
 def areThereMatchDuplicates():
-    dataFile = open("D:\PyCharmProjects\DataScienceProject\dataFile.txt", 'r')
-    list_of_matches_from_file = dataFile.readlines()
-    dataFile.close()
+    matchesSourcedFile = open("D:\PyCharmProjects\DataScienceProject\matchesSourcedFile.txt", 'r')
+    list_of_matches_from_file = matchesSourcedFile.readlines()
+    matchesSourcedFile.close()
 
     if(set(list_of_matches).isdisjoint(set(list_of_matches_from_file)) and not (len(list_of_matches_from_file) > 0)): #If they do not have duplicates and they are not empty
         return False
@@ -57,17 +82,17 @@ def areThereMatchDuplicates():
 
 
 def checkForTextFile():#This is going to check for a text file before we start to manipulate data to put into it.
-    dataFile = open("D:\PyCharmProjects\DataScienceProject\dataFile.txt", 'a+')
+    matchesSourcedFile = open("D:\PyCharmProjects\DataScienceProject\matchesSourcedFile.txt", 'a+')
     if(areThereMatchDuplicates()):
         print("There are duplicates")
         return
     else:
         print("There are no duplicates")
         for x_match in list_of_matches:
-            dataFile.write(str(x_match))
-            dataFile.write('\n')
+            matchesSourcedFile.write(str(x_match))
+            matchesSourcedFile.write('\n')
             #print(str(x_match))
-    dataFile.close()
+    matchesSourcedFile.close()
 
 
 def printListOfSummoners(): #Prints list of the summoner objects (This includes a lot of information)
@@ -81,16 +106,11 @@ def printListOfSummoners(): #Prints list of the summoner objects (This includes 
     checkForTextFile()
 
 
-url_list = []
-
 def createRiotAPIUrl():
     for x_match in list_of_matches:
         url_list.append('https://americas.api.riotgames.com/lol/match/v5/matches/' + str(x_match) + '?api_key=' + str(api_key))
 
 
-list_of_all_champions = []
-list_of_winning_comps = []
-list_of_losing_comps = []
 def getChampionList():
     try:
         for x_url in url_list:
@@ -142,6 +162,9 @@ try:
     createRiotAPIUrl()
     time.sleep(2.5)
     getChampionList()
+    initializeWinningCompFileHeader()
+    for eachWinningComp in list_of_winning_comps:
+        eachWinningComp.writeCSVofteam()
     printWinningCompJunglers()
 except HTTPError as err:
     if err.code == 429:
