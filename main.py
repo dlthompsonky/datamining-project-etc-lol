@@ -19,10 +19,11 @@ plt.style.use("seaborn")
 field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support']
 def initializeWinningCompFileHeader():
     if (not (exists("D:\PyCharmProjects\DataScienceProject\winningComps.csv") == True)):
-        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w') as csvFile:
+        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(field_names_for_team_comps)
             print("Initializing Winning Comp File & Header")
+            csvFile.close()
 
 
 class WinningComp:
@@ -31,12 +32,7 @@ class WinningComp:
     midLaner = ''
     botLaner = ''
     support = ''
-    dataToBeWritten = [str(topLaner), str(jungler), str(midLaner), str(botLaner), str(support)]
-    def writeCSVofteam(self):
-        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w') as csvFile:
-            skipHeader = pd.read_csv(csvFile, skiprows=0)
-            writer = csv.writer(csvFile)
-            writer.writerow(WinningComp.dataToBeWritten)
+    dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
 class LosingComp:
@@ -47,7 +43,7 @@ class LosingComp:
     support = ''
 
 
-api_key = 'RGAPI-5f6fa0f8-297a-4bd9-964f-9e413f7b567c'
+api_key = 'RGAPI-48678dd9-6d2b-4bc7-a62b-44446502db92'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -115,7 +111,7 @@ def getChampionList():
     try:
         for x_url in url_list:
             #print("Looping")
-            time.sleep(1) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
+            time.sleep(.5) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
             with urllib.request.urlopen(x_url) as url:
                 data = json.loads(url.read().decode())
                 wc = WinningComp()
@@ -156,15 +152,20 @@ def printWinningCompJunglers():
         print(str(wc.jungler))
 
 
+def writeWCtoCSV():
+    with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'a+', newline='') as csvFile:
+        writer = csv.writer(csvFile)
+        for wc in list_of_winning_comps:
+            writer.writerow([wc.topLaner, wc.jungler, wc.midLaner, wc.botLaner, wc.support])
+        csvFile.close()
+
+
 try:
     printListOfSummoners()
-    time.sleep(2.5)
     createRiotAPIUrl()
-    time.sleep(2.5)
     getChampionList()
     initializeWinningCompFileHeader()
-    for eachWinningComp in list_of_winning_comps:
-        eachWinningComp.writeCSVofteam()
+    writeWCtoCSV()
     printWinningCompJunglers()
 except HTTPError as err:
     if err.code == 429:
