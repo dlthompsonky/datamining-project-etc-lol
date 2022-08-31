@@ -15,11 +15,22 @@ import matplotlib.pylab as plt
 import pandas as pd
 
 plt.style.use("seaborn")
-
 field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support']
+
+
+
 def initializeWinningCompFileHeader():
     if (not (exists("D:\PyCharmProjects\DataScienceProject\winningComps.csv") == True)):
         with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w', newline='') as csvFile:
+            writer = csv.writer(csvFile)
+            writer.writerow(field_names_for_team_comps)
+            print("Initializing Winning Comp File & Header")
+            csvFile.close()
+
+
+def initializeLosingCompFileHeader():
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\losingComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\losingComps.csv", 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(field_names_for_team_comps)
             print("Initializing Winning Comp File & Header")
@@ -41,12 +52,12 @@ class LosingComp:
     midLaner = ''
     botLaner = ''
     support = ''
+    dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-48678dd9-6d2b-4bc7-a62b-44446502db92'
+api_key = 'RGAPI-1091dd1a-73b6-4439-bcd0-6c014bcac763'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
-
 
 list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
                      lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
@@ -111,7 +122,7 @@ def getChampionList():
     try:
         for x_url in url_list:
             #print("Looping")
-            time.sleep(.5) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
+            time.sleep(.75) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
             with urllib.request.urlopen(x_url) as url:
                 data = json.loads(url.read().decode())
                 wc = WinningComp()
@@ -160,12 +171,22 @@ def writeWCtoCSV():
         csvFile.close()
 
 
+def writeLCtoCSV():
+    with open("D:\PyCharmProjects\DataScienceProject\losingComps.csv", 'a+', newline='') as csvFile:
+        writer = csv.writer(csvFile)
+        for lc in list_of_losing_comps:
+            writer.writerow([lc.topLaner, lc.jungler, lc.midLaner, lc.botLaner, lc.support])
+        csvFile.close()
+
+
 try:
     printListOfSummoners()
     createRiotAPIUrl()
     getChampionList()
-    initializeWinningCompFileHeader()
-    writeWCtoCSV()
+    initializeWinningCompFileHeader() #Here we're initializing the header's for the different CSV Files
+    initializeLosingCompFileHeader()
+    writeWCtoCSV() #and Here we're actually writing the data for the CSV files
+    writeLCtoCSV()
     printWinningCompJunglers()
 except HTTPError as err:
     if err.code == 429:
