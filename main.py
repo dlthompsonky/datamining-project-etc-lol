@@ -18,7 +18,6 @@ plt.style.use("seaborn")
 field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support']
 
 
-
 def initializeWinningCompFileHeader():
     if (not (exists("D:\PyCharmProjects\DataScienceProject\winningComps.csv") == True)):
         with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w', newline='') as csvFile:
@@ -55,7 +54,7 @@ class LosingComp:
     dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-1091dd1a-73b6-4439-bcd0-6c014bcac763'
+api_key = 'RGAPI-3f916fba-a103-4cfc-973e-c02dac9dd7b9'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -179,15 +178,20 @@ def writeLCtoCSV():
         csvFile.close()
 
 
+def testingPandas():
+    winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\winningComps.csv")
+    print(winningCompsData.head)
+
 try:
-    printListOfSummoners()
-    createRiotAPIUrl()
-    getChampionList()
-    initializeWinningCompFileHeader() #Here we're initializing the header's for the different CSV Files
-    initializeLosingCompFileHeader()
-    writeWCtoCSV() #and Here we're actually writing the data for the CSV files
-    writeLCtoCSV()
-    printWinningCompJunglers()
+    #printListOfSummoners()
+    #createRiotAPIUrl()
+    #getChampionList()
+    #initializeWinningCompFileHeader() #Here we're initializing the header's for the different CSV Files
+    #initializeLosingCompFileHeader()
+    #writeWCtoCSV() #and Here we're actually writing the data for the CSV files
+    #writeLCtoCSV()
+    #printWinningCompJunglers()
+    testingPandas()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
