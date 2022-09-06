@@ -1,6 +1,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import csv
+import os
 import sys
 from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
 from os.path import exists
@@ -15,12 +16,12 @@ import matplotlib.pylab as plt
 import pandas as pd
 
 plt.style.use("seaborn")
-field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support']
+field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / lose']
 
 
 def initializeWinningCompFileHeader():
-    if (not (exists("D:\PyCharmProjects\DataScienceProject\winningComps.csv") == True)):
-        with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'w', newline='') as csvFile:
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv", 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(field_names_for_team_comps)
             print("Initializing Winning Comp File & Header")
@@ -28,8 +29,8 @@ def initializeWinningCompFileHeader():
 
 
 def initializeLosingCompFileHeader():
-    if (not (exists("D:\PyCharmProjects\DataScienceProject\losingComps.csv") == True)):
-        with open("D:\PyCharmProjects\DataScienceProject\losingComps.csv", 'w', newline='') as csvFile:
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(field_names_for_team_comps)
             print("Initializing Winning Comp File & Header")
@@ -54,7 +55,7 @@ class LosingComp:
     dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-3f916fba-a103-4cfc-973e-c02dac9dd7b9'
+api_key = 'RGAPI-6ef8cf23-eb1a-45ae-95ff-41c6817a6825'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -163,24 +164,36 @@ def printWinningCompJunglers():
 
 
 def writeWCtoCSV():
-    with open("D:\PyCharmProjects\DataScienceProject\winningComps.csv", 'a+', newline='') as csvFile:
+    with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv", 'a+', newline='') as csvFile:
         writer = csv.writer(csvFile)
         for wc in list_of_winning_comps:
-            writer.writerow([wc.topLaner, wc.jungler, wc.midLaner, wc.botLaner, wc.support])
+            writer.writerow([wc.topLaner, wc.jungler, wc.midLaner, wc.botLaner, wc.support, 'win'])
         csvFile.close()
 
 
 def writeLCtoCSV():
-    with open("D:\PyCharmProjects\DataScienceProject\losingComps.csv", 'a+', newline='') as csvFile:
+    with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'a+', newline='') as csvFile:
         writer = csv.writer(csvFile)
         for lc in list_of_losing_comps:
-            writer.writerow([lc.topLaner, lc.jungler, lc.midLaner, lc.botLaner, lc.support])
+            writer.writerow([lc.topLaner, lc.jungler, lc.midLaner, lc.botLaner, lc.support, 'lose'])
         csvFile.close()
 
 
 def testingPandas():
-    winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\winningComps.csv")
-    print(winningCompsData.head)
+    winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv")
+
+    files = [file for file in os.listdir('./Comp_Data')]
+    all_Comps = pd.DataFrame()
+
+    for file in files:
+        df = pd.read_csv("./Comp_Data/" + file)
+        all_Comps = pd.concat([all_Comps, df])
+    print(all_Comps.head)
+
+
+def initializeCompDir():
+    if not os.path.exists("D:\PyCharmProjects\DataScienceProject\Comp_Data"):
+        os.makedirs("D:\PyCharmProjects\DataScienceProject\Comp_Data")
 
 try:
     #printListOfSummoners()
@@ -190,7 +203,8 @@ try:
     #initializeLosingCompFileHeader()
     #writeWCtoCSV() #and Here we're actually writing the data for the CSV files
     #writeLCtoCSV()
-    #printWinningCompJunglers()
+    printWinningCompJunglers()
+    initializeCompDir()
     testingPandas()
 except HTTPError as err:
     if err.code == 429:
