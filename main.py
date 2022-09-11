@@ -16,7 +16,7 @@ import matplotlib.pylab as plt
 import pandas as pd
 
 plt.style.use("seaborn")
-field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / lose']
+field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
 
 
 def initializeWinningCompFileHeader():
@@ -55,7 +55,7 @@ class LosingComp:
     dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-6ef8cf23-eb1a-45ae-95ff-41c6817a6825'
+api_key = 'RGAPI-6c06a463-4aeb-4a6c-bbe4-f704af5a5259'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -179,6 +179,10 @@ def writeLCtoCSV():
         csvFile.close()
 
 
+selected_role = 'Jungle'
+selected_champion = 'Belveth'
+
+
 def testingPandas():
     winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv")
 
@@ -190,10 +194,20 @@ def testingPandas():
         all_Comps = pd.concat([all_Comps, df])
     print(all_Comps.head)
 
+    total_duplicate_games_champion = all_Comps.pivot_table(index=[selected_role], aggfunc='size')
+
+   # winrate_of_champion = float
+
+    #for each_champ in total_duplicate_games_champion:
+   #     if each_champ is 'Belveth'
+
+    print(total_duplicate_games_champion)
+
 
 def initializeCompDir():
     if not os.path.exists("D:\PyCharmProjects\DataScienceProject\Comp_Data"):
         os.makedirs("D:\PyCharmProjects\DataScienceProject\Comp_Data")
+
 
 try:
     #printListOfSummoners()
