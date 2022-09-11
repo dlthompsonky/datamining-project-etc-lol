@@ -175,7 +175,7 @@ def writeLCtoCSV():
     with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'a+', newline='') as csvFile:
         writer = csv.writer(csvFile)
         for lc in list_of_losing_comps:
-            writer.writerow([lc.topLaner, lc.jungler, lc.midLaner, lc.botLaner, lc.support, 'lose'])
+            writer.writerow([lc.topLaner, lc.jungler, lc.midLaner, lc.botLaner, lc.support, 'loss'])
         csvFile.close()
 
 
@@ -187,14 +187,29 @@ def testingPandas():
     winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv")
 
     files = [file for file in os.listdir('./Comp_Data')]
-    all_Comps = pd.DataFrame()
+    all_comps = pd.DataFrame()
 
     for file in files:
         df = pd.read_csv("./Comp_Data/" + file)
-        all_Comps = pd.concat([all_Comps, df])
-    print(all_Comps.head)
+        all_comps = pd.concat([all_comps, df]).reset_index(drop=True)
+    print(all_comps.head)
 
-    total_duplicate_games_champion = all_Comps.pivot_table(index=[selected_role], aggfunc='size')
+    wins = 0
+    losses = 0
+    index = 0
+
+    for each_champion in all_comps[selected_role]:
+        if each_champion is selected_champion:
+            if all_comps['win / loss'][index] is 'win':
+                wins = wins + 1
+            else:
+                losses = losses + 1
+        print("Looping and : " + all_comps['win / loss'][index])
+        index = index + 1
+    print("These are the wins : " + str(wins))
+    print("These are the losses: " + str(losses))
+
+    total_duplicate_games_champion = all_comps.pivot_table(index=[selected_role], aggfunc='size')
 
    # winrate_of_champion = float
 
