@@ -55,7 +55,7 @@ class LosingComp:
     dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-6c06a463-4aeb-4a6c-bbe4-f704af5a5259'
+api_key = 'RGAPI-fec89a8c-f8e1-4867-8558-c854e15d8cc2'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -179,8 +179,8 @@ def writeLCtoCSV():
         csvFile.close()
 
 
-selected_role = 'Jungle'
-selected_champion = 'Belveth'
+selected_role = "Jungle"
+selected_champion = "Belveth"
 
 
 def testingPandas():
@@ -196,27 +196,29 @@ def testingPandas():
 
     wins = 0
     losses = 0
-    index = 0
 
-    for each_champion in all_comps[selected_role]:
-        if each_champion is selected_champion:
-            if all_comps['win / loss'][index] is 'win':
-                wins = wins + 1
-            else:
-                losses = losses + 1
-        print("Looping and : " + all_comps['win / loss'][index])
-        index = index + 1
+    for (idx, each_row) in enumerate(all_comps[selected_role]):
+        #print("This is the row : " + str(each_row))
+        if each_row == selected_champion:
+            if all_comps['win / loss'][idx] == 'win':
+                print("Found a win")
+                wins += 1
+            elif all_comps['win / loss'][idx] == 'loss':
+                print("Found a loss")
+                losses += 1
+            print("Looping and : " + str(all_comps['win / loss'][idx]))
+
     print("These are the wins : " + str(wins))
     print("These are the losses: " + str(losses))
 
-    total_duplicate_games_champion = all_comps.pivot_table(index=[selected_role], aggfunc='size')
 
    # winrate_of_champion = float
 
     #for each_champ in total_duplicate_games_champion:
    #     if each_champ is 'Belveth'
 
-    print(total_duplicate_games_champion)
+    #total_duplicate_games_champion = all_comps.pivot_table(index=[selected_role], aggfunc='size')
+    #print(total_duplicate_games_champion)
 
 
 def initializeCompDir():
