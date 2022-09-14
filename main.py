@@ -19,24 +19,6 @@ plt.style.use("seaborn")
 field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
 
 
-def initializeWinningCompFileHeader():
-    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv") == True)):
-        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv", 'w', newline='') as csvFile:
-            writer = csv.writer(csvFile)
-            writer.writerow(field_names_for_team_comps)
-            print("Initializing Winning Comp File & Header")
-            csvFile.close()
-
-
-def initializeLosingCompFileHeader():
-    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv") == True)):
-        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'w', newline='') as csvFile:
-            writer = csv.writer(csvFile)
-            writer.writerow(field_names_for_team_comps)
-            print("Initializing Winning Comp File & Header")
-            csvFile.close()
-
-
 class WinningComp:
     topLaner = ''
     jungler = ''
@@ -75,6 +57,24 @@ url_list = []
 list_of_all_champions = []
 list_of_winning_comps = []
 list_of_losing_comps = []
+
+
+def initializeWinningCompFileHeader():
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv", 'w', newline='') as csvFile:
+            writer = csv.writer(csvFile)
+            writer.writerow(field_names_for_team_comps)
+            print("Initializing Winning Comp File & Header")
+            csvFile.close()
+
+
+def initializeLosingCompFileHeader():
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'w', newline='') as csvFile:
+            writer = csv.writer(csvFile)
+            writer.writerow(field_names_for_team_comps)
+            print("Initializing Winning Comp File & Header")
+            csvFile.close()
 
 
 def areThereMatchDuplicates():
@@ -158,11 +158,6 @@ def getChampionList():
         pass
 
 
-def printWinningCompJunglers():
-    for wc in list_of_winning_comps:
-        print(str(wc.jungler))
-
-
 def writeWCtoCSV():
     with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv", 'a+', newline='') as csvFile:
         writer = csv.writer(csvFile)
@@ -184,8 +179,6 @@ selected_champion = "Belveth"
 
 
 def testingPandas():
-    winningCompsData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\Comp_Data\winningComps.csv")
-
     files = [file for file in os.listdir('./Comp_Data')]
     all_comps = pd.DataFrame()
 
@@ -201,24 +194,17 @@ def testingPandas():
         #print("This is the row : " + str(each_row))
         if each_row == selected_champion:
             if all_comps['win / loss'][idx] == 'win':
-                print("Found a win")
                 wins += 1
             elif all_comps['win / loss'][idx] == 'loss':
-                print("Found a loss")
                 losses += 1
-            print("Looping and : " + str(all_comps['win / loss'][idx]))
+            #print("Looping and : " + str(all_comps['win / loss'][idx]))
 
-    print("These are the wins : " + str(wins))
+    print("These are the wins: " + str(wins))
     print("These are the losses: " + str(losses))
 
+    winrate_on_selected_champion = (wins / (wins + losses)) * 100
+    print("The winrate of: " + str(selected_champion) + " " + str(winrate_on_selected_champion) + " %")
 
-   # winrate_of_champion = float
-
-    #for each_champ in total_duplicate_games_champion:
-   #     if each_champ is 'Belveth'
-
-    #total_duplicate_games_champion = all_comps.pivot_table(index=[selected_role], aggfunc='size')
-    #print(total_duplicate_games_champion)
 
 
 def initializeCompDir():
@@ -234,7 +220,6 @@ try:
     #initializeLosingCompFileHeader()
     #writeWCtoCSV() #and Here we're actually writing the data for the CSV files
     #writeLCtoCSV()
-    printWinningCompJunglers()
     initializeCompDir()
     testingPandas()
 except HTTPError as err:
