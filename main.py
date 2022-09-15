@@ -37,7 +37,7 @@ class LosingComp:
     dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-fec89a8c-f8e1-4867-8558-c854e15d8cc2'
+api_key = 'RGAPI-9a96ff72-833a-45cb-bd6d-ef7e5318515d'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -54,9 +54,14 @@ list_of_puuids = []
 list_of_matches = []
 list_of_matches_from_file = []
 url_list = []
-list_of_all_champions = []
+list_of_champions = []
 list_of_winning_comps = []
 list_of_losing_comps = []
+
+
+def initializeFileHeaders():
+    initializeWinningCompFileHeader()
+    initializeLosingCompFileHeader()
 
 
 def initializeWinningCompFileHeader():
@@ -73,7 +78,7 @@ def initializeLosingCompFileHeader():
         with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'w', newline='') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(field_names_for_team_comps)
-            print("Initializing Winning Comp File & Header")
+            print("Initializing Losing Comp File & Header")
             csvFile.close()
 
 
@@ -102,7 +107,7 @@ def checkForTextFile():#This is going to check for a text file before we start t
     matchesSourcedFile.close()
 
 
-def printListOfSummoners(): #Prints list of the summoner objects (This includes a lot of information)
+def getListOfSummoners(): #Prints list of the summoner objects (This includes a lot of information)
     for x_puuid_id in list_of_summoners:
         list_of_puuids.append(x_puuid_id['puuid']) #This is to collect the accountId of each account
     for x_puuid in list_of_puuids:
@@ -150,12 +155,28 @@ def getChampionList():
                             lc.botLaner = data['info']['participants'][i]['championName']
                         elif data['info']['participants'][i]['individualPosition'] == "UTILITY":
                             lc.support = data['info']['participants'][i]['championName']
-                    list_of_all_champions.append(data['info']['participants'][i]['championName'])
+                    if list_of_champions.count(data['info']['participants'][i]['championName']) > 0 and len(list_of_champions) > 0: #Checking for duplicates in the list of champions
+                        print("The champion : " + str(data['info']['participants'][i]['championName']) + " is already in the list")
+                    else:
+                        list_of_champions.append(data['info']['participants'][i]['championName'])
                 list_of_winning_comps.append(wc)
                 list_of_losing_comps.append(lc)
     except HTTPError as err:
         print(err) #There is better error handling than this. Just using pass as placement for big issues right now.
         pass
+
+
+def writeListOfChampionsToTXT():
+    champion_list_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'a+')
+    for each_champion in list_of_champions:
+        champion_list_file.write(str(each_champion))
+        champion_list_file.write('\n')
+    champion_list_file.close()
+
+
+def writeTCtoCSV():
+    writeWCtoCSV()
+    writeLCtoCSV()
 
 
 def writeWCtoCSV():
@@ -206,22 +227,20 @@ def testingPandas():
     print("The winrate of: " + str(selected_champion) + " " + str(winrate_on_selected_champion) + " %")
 
 
-
 def initializeCompDir():
     if not os.path.exists("D:\PyCharmProjects\DataScienceProject\Comp_Data"):
         os.makedirs("D:\PyCharmProjects\DataScienceProject\Comp_Data")
 
 
 try:
-    #printListOfSummoners()
-    #createRiotAPIUrl()
+    getListOfSummoners()
+    createRiotAPIUrl()
     #getChampionList()
-    #initializeWinningCompFileHeader() #Here we're initializing the header's for the different CSV Files
-    #initializeLosingCompFileHeader()
-    #writeWCtoCSV() #and Here we're actually writing the data for the CSV files
-    #writeLCtoCSV()
+    #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
+    #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
+    #writeTCtoCSV()             #Writing the Team compositions to CSV files.
     initializeCompDir()
-    testingPandas()
+    testingPandas()         #This is a work in progress of getting pandas, seaborn, etc to work to construct heatmap.
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
@@ -231,5 +250,3 @@ except HTTPError as err:
         print(err.code)
         pass
 
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
