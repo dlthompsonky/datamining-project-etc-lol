@@ -16,8 +16,9 @@ import matplotlib.pylab as plt
 import pandas as pd
 
 plt.style.use("seaborn")
-field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
 
+field_names_for_heatmap = []
+field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
 
 class WinningComp:
     topLaner = ''
@@ -25,7 +26,7 @@ class WinningComp:
     midLaner = ''
     botLaner = ''
     support = ''
-    dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
+    #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
 class LosingComp:
@@ -34,10 +35,10 @@ class LosingComp:
     midLaner = ''
     botLaner = ''
     support = ''
-    dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
+    #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-9a96ff72-833a-45cb-bd6d-ef7e5318515d'
+api_key = 'RGAPI-c3fade31-fb4b-46be-b80e-be73b022beae'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -57,6 +58,7 @@ url_list = []
 list_of_champions = []
 list_of_winning_comps = []
 list_of_losing_comps = []
+list_of_heatmap_champs = [[]]  #2D Array Syntax
 
 
 def initializeFileHeaders():
@@ -210,15 +212,16 @@ def testingPandas():
 
     wins = 0
     losses = 0
-
-    for (idx, each_row) in enumerate(all_comps[selected_role]):
-        #print("This is the row : " + str(each_row))
-        if each_row == selected_champion:
-            if all_comps['win / loss'][idx] == 'win':
-                wins += 1
-            elif all_comps['win / loss'][idx] == 'loss':
-                losses += 1
-            #print("Looping and : " + str(all_comps['win / loss'][idx]))
+    for (idx, each_column) in enumerate(all_comps):
+        if all_comps[each_column] is not "win / loss":
+            for (idx, each_row) in enumerate(all_comps[each_column]):
+                #print("This is the row : " + str(each_row))
+                if each_row == selected_champion: #STOPPING POINT , TRY TO FIND OUT HOW TO NOW GET THE WINRATES TO CORRESPOND WITH EACH COLUMN / ROW
+                    if all_comps['win / loss'][idx] == 'win':
+                        wins += 1
+                    elif all_comps['win / loss'][idx] == 'loss':
+                        losses += 1
+                    #print("Looping and : " + str(all_comps['win / loss'][idx]))
 
     print("These are the wins: " + str(wins))
     print("These are the losses: " + str(losses))
@@ -227,20 +230,48 @@ def testingPandas():
     print("The winrate of: " + str(selected_champion) + " " + str(winrate_on_selected_champion) + " %")
 
 
+def initializeHeatMapCSV():
+    with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFile:
+        writer = csv.writer(csvFile)
+        total_header = []
+        for each_row in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
+            stripped_row = each_row.strip()
+            total_header.append(str(stripped_row))
+            print(str(stripped_row))
+        total_header.append("winrate")
+        writer.writerow(total_header)
+        csvFile.close()
+
+def heatmapAttempt():
+    heatmapDataFrame = pd.DataFrame()
+
+
+def initializeChampList():
+    list_of_champions_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+')
+
+    for each_row in list_of_champions_file:
+        stripped_row = each_row.strip()
+        list_of_heatmap_champs.append(stripped_row)
+
+    list_of_champions_file.close()
+
+
 def initializeCompDir():
     if not os.path.exists("D:\PyCharmProjects\DataScienceProject\Comp_Data"):
         os.makedirs("D:\PyCharmProjects\DataScienceProject\Comp_Data")
 
 
 try:
-    getListOfSummoners()
-    createRiotAPIUrl()
+    #getListOfSummoners()
+    #createRiotAPIUrl()
     #getChampionList()
     #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
-    #writeTCtoCSV()             #Writing the Team compositions to CSV files.
+    #writeTCtoCSV()              #Writing the Team compositions to CSV files.
     initializeCompDir()
+    #initializeChampList()
     testingPandas()         #This is a work in progress of getting pandas, seaborn, etc to work to construct heatmap.
+    initializeHeatMapCSV()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
