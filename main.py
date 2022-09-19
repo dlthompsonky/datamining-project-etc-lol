@@ -212,15 +212,27 @@ def testingPandas():
 
     wins = 0
     losses = 0
-    for (idx, each_column) in enumerate(all_comps):
+    csvData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv")
+    columns = list(csvData)
+
+    for (idx1, each_column) in enumerate(all_comps):
         if all_comps[each_column] is not "win / loss":
-            for (idx, each_row) in enumerate(all_comps[each_column]):
-                #print("This is the row : " + str(each_row))
-                if each_row == selected_champion: #STOPPING POINT , TRY TO FIND OUT HOW TO NOW GET THE WINRATES TO CORRESPOND WITH EACH COLUMN / ROW
-                    if all_comps['win / loss'][idx] == 'win':
-                        wins += 1
-                    elif all_comps['win / loss'][idx] == 'loss':
-                        losses += 1
+            for (idx2, each_row) in enumerate(all_comps[each_column]):
+                #print("This is the row : " + str(each_row)) #STOPPING POINT , TRY TO FIND OUT HOW TO NOW GET THE WINRATES TO CORRESPOND WITH EACH COLUMN / ROW
+                if all_comps['win / loss'][idx2] == 'win':
+                    wins += 1
+                    for each_column in columns:
+                        row_to_be_written = ""
+                        print(str(each_column))
+                        for each_entry in range(0, 5):
+                            if each_column == all_comps[each_entry][each_row]:
+                                row_to_be_written += str(all_comps[each_entry][each_row]+",")
+                                print("This is the entry for " + str(idx2) + " : " + str(all_comps[each_entry][idx2]))
+                                break
+                            elif each_column != all_comps[each_entry][each_row] and each_entry >= 4:
+                                row_to_be_written += 'null,'
+                elif all_comps['win / loss'][idx2] == 'loss':
+                    losses += 1
                     #print("Looping and : " + str(all_comps['win / loss'][idx]))
 
     print("These are the wins: " + str(wins))
@@ -231,16 +243,17 @@ def testingPandas():
 
 
 def initializeHeatMapCSV():
-    with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFile:
-        writer = csv.writer(csvFile)
-        total_header = []
-        for each_row in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
-            stripped_row = each_row.strip()
-            total_header.append(str(stripped_row))
-            print(str(stripped_row))
-        total_header.append("winrate")
-        writer.writerow(total_header)
-        csvFile.close()
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv") == True)):
+        with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFile:
+            writer = csv.writer(csvFile)
+            total_header = []
+            for each_row in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
+                stripped_row = each_row.strip()
+                total_header.append(str(stripped_row))
+                print(str(stripped_row))
+            total_header.append("winrate")
+            writer.writerow(total_header)
+            csvFile.close()
 
 def heatmapAttempt():
     heatmapDataFrame = pd.DataFrame()
@@ -271,7 +284,7 @@ try:
     initializeCompDir()
     #initializeChampList()
     testingPandas()         #This is a work in progress of getting pandas, seaborn, etc to work to construct heatmap.
-    initializeHeatMapCSV()
+    #initializeHeatMapCSV()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
