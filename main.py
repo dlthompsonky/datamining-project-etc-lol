@@ -38,7 +38,7 @@ class LosingComp:
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-67e9dedc-5908-46d3-9166-66ba8f371716'
+api_key = 'RGAPI-b17554b7-d868-4d16-bbcf-c8aa134cc6d7'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -216,29 +216,23 @@ def testingPandas():
     columns = list(csvData)
 
     for (idx1, each_column) in enumerate(all_comps):
-        if all_comps[each_column][0] is not "win / loss":
+        if str(all_comps[each_column]) != "win / loss":
             for (idx2, each_row) in enumerate(all_comps[each_column]):
-                #print("This is the row : " + str(each_row)) #STOPPING POINT , TRY TO FIND OUT HOW TO NOW GET THE WINRATES TO CORRESPOND WITH EACH COLUMN / ROW
                 if all_comps['win / loss'][idx2] == 'win':
                     wins += 1
                     for each_column_of_columns in columns:
                         row_to_be_written = ""
-                        print("Here is the column : " + str(each_column_of_columns))
-                        print("Here is the champion: " + str(all_comps[each_column][idx2]))
+                        print("Here is the column : " + str(each_column_of_columns) + " | Here is the champion: " + str(all_comps[each_column][idx2]))
                         if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
-                            for each_entry in all_comps[each_column]:
-
-                                print("Here is the entry : " + str(each_entry))
-                                if each_entry == "Top" or each_entry == "Jungle" or each_entry == "Mid" or each_entry == "Bot" or each_entry == "Support" or each_entry == "win / loss":
-                                    print("")
-                                    break #Basically saying that if we are in the header, skip this line.
-                                else:
-                                    for (idx3, each_column_again) in enumerate(all_comps):
-                                        if idx3 < 5:
-                                            row_to_be_written += str(all_comps[each_column_again][idx2]) + ","
-                                            print("This is the entry for " + str(idx2) + " : " + str(all_comps[each_column_again][idx2]))
-                                    break
-                        print("This is the row to be written: " + str(row_to_be_written))
+                            print("Found a match")
+                            for (limiter_index, each_entry) in enumerate(all_comps):
+                                if str(all_comps[each_entry][idx2]) != "win":
+                                    if (limiter_index < 5):
+                                        row_to_be_written += str(all_comps[each_entry][idx2]) + ","
+                                    else:
+                                        row_to_be_written += str(all_comps[each_entry][idx2])
+                                    print("This is the entry for " + str(idx2) + ": " + str(all_comps[each_entry][idx2]))
+                            print("This is the row to be written: " + str(row_to_be_written))
                 elif all_comps['win / loss'][idx2] == 'loss':
                     losses += 1
                     #print("Looping and : " + str(all_comps['win / loss'][idx]))
@@ -260,6 +254,7 @@ def initializeHeatMapCSV():
                 total_header.append(str(stripped_row))
                 #print(str(stripped_row))
             total_header.append("winrate")
+            total_header.append("number of games")
             writer.writerow(total_header)
             csvFile.close()
 
