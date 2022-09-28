@@ -38,7 +38,7 @@ class LosingComp:
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-b17554b7-d868-4d16-bbcf-c8aa134cc6d7'
+api_key = 'RGAPI-9b64b358-fab1-40f2-8699-e3e6772c473e'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -129,7 +129,7 @@ def getChampionList():
     try:
         for x_url in url_list:
             #print("Looping")
-            time.sleep(.75) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
+            time.sleep(.8) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
             with urllib.request.urlopen(x_url) as url:
                 data = json.loads(url.read().decode())
                 wc = WinningComp()
@@ -166,6 +166,50 @@ def getChampionList():
     except HTTPError as err:
         print(err) #There is better error handling than this. Just using pass as placement for big issues right now.
         pass
+
+
+def sortListOfChampions(): #I didn't want to use double for loop.
+    print("Starting the sorting")
+    idx = 0
+    while idx < len(list_of_champions):
+        if idx == 0:
+            idx += 1
+            continue
+        elif idx > 0:
+            first_word = str(list_of_champions[idx])
+            second_word = str(list_of_champions[idx - 1])
+            print("Here is the first word: " + first_word)
+            print("Here is the second word: " + second_word)
+            if first_word[0] < second_word[0]:
+                print("First word is out of place.")
+                temp = str(second_word)
+                list_of_champions.remove(str(second_word))
+                list_of_champions.append(temp)
+                idx = 0
+            elif first_word[0] == second_word[0]:
+                if first_word[1] < second_word[1]:
+                    print("First word is out of place.")
+                    temp = str(second_word)
+                    list_of_champions.remove(str(second_word))
+                    list_of_champions.append(temp)
+                    idx = 0
+                elif first_word[1] == second_word[1]:
+                    if first_word[2] > second_word[2]:
+                        print("First word is out of place.")
+                        temp = str(second_word)
+                        list_of_champions.remove(str(second_word))
+                        list_of_champions.append(temp)
+                        idx = 0
+                    else:
+                        idx += 1
+                else:
+                    idx += 1
+            else:
+                idx += 1
+
+    print("Here is the sorted list of champions: ")
+    for each_champion in list_of_champions:
+        print(str(each_champion))
 
 
 def writeListOfChampionsToTXT():
@@ -216,18 +260,19 @@ def testingPandas():
     columns = list(csvData)
 
     for (idx1, each_column) in enumerate(all_comps):
-        if str(all_comps[each_column]) != "win / loss":
+        if (str(all_comps[each_column][0]) != "loss") or (str(all_comps[each_column][0]) != "win") or (str(all_comps[each_column][0]) != "win / loss"):
+            print("Here is the thing: " + str(all_comps[each_column][0]))
             for (idx2, each_row) in enumerate(all_comps[each_column]):
                 if all_comps['win / loss'][idx2] == 'win':
                     wins += 1
                     for each_column_of_columns in columns:
                         row_to_be_written = ""
-                        print("Here is the column : " + str(each_column_of_columns) + " | Here is the champion: " + str(all_comps[each_column][idx2]))
+                       #print("Here is the column : " + str(each_column_of_columns) + " | Here is the champion: " + str(all_comps[each_column][idx2]))
                         if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
                             print("Found a match")
                             for (limiter_index, each_entry) in enumerate(all_comps):
                                 if str(all_comps[each_entry][idx2]) != "win":
-                                    if (limiter_index < 5):
+                                    if limiter_index < 4:
                                         row_to_be_written += str(all_comps[each_entry][idx2]) + ","
                                     else:
                                         row_to_be_written += str(all_comps[each_entry][idx2])
@@ -278,15 +323,16 @@ def initializeCompDir():
 
 
 try:
-    #getListOfSummoners()
-    #createRiotAPIUrl()
-    #getChampionList()
+    getListOfSummoners()
+    createRiotAPIUrl()
+    getChampionList()
+    sortListOfChampions()
     #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()              #Writing the Team compositions to CSV files.
-    initializeCompDir()
+    #initializeCompDir()
     #initializeChampList()
-    testingPandas()
+    #testingPandas()
     #initializeHeatMapCSV()
 except HTTPError as err:
     if err.code == 429:
