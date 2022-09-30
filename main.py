@@ -167,47 +167,49 @@ def getChampionList():
         pass
 
 
-def sortListOfChampions(): #I didn't want to use double for loop.
+def sortListOfChampions(list_selected): #I didn't want to use double for loop.
     print("Starting the sorting")
     idx = 0
+    selected_list = []
+    selected_list = list_selected
 
-    while idx < len(list_of_champions):
+    while idx < len(selected_list):
         if idx == 0:
             idx += 1
             continue
         elif idx > 0:
-            first_word = str(list_of_champions[idx])
-            second_word = str(list_of_champions[idx - 1])
+            first_word = str(selected_list[idx])
+            second_word = str(selected_list[idx - 1])
             #print("Here is the first word: " + first_word)
             #print("Here is the second word: " + second_word)
             if first_word[0] < second_word[0]:
                 #print("First word is out of place.")
                 temp = str(second_word)
-                list_of_champions.remove(str(second_word))
-                list_of_champions.append(temp)
+                selected_list.remove(str(second_word))
+                selected_list.append(temp)
                 idx = 0
             elif first_word[0] == second_word[0]:
                 if first_word[1] < second_word[1]:
                     #print("First word is out of place.")
                     temp = str(second_word)
-                    list_of_champions.remove(str(second_word))
-                    list_of_champions.append(temp)
+                    selected_list.remove(str(second_word))
+                    selected_list.append(temp)
                     idx = 0
                 elif first_word[1] == second_word[1]:
                     if len(first_word) >= 3 and len(second_word) >= 3:
                         if first_word[2] < second_word[2]:
                             #print("First word is out of place.")
                             temp = str(second_word)
-                            list_of_champions.remove(str(second_word))
-                            list_of_champions.append(temp)
+                            selected_list.remove(str(second_word))
+                            selected_list.append(temp)
                             idx = 0
                         else:
                             idx += 1
                     elif len(first_word) < len(second_word):
                         #print("First word is shorter")
                         temp = str(second_word)
-                        list_of_champions.remove(str(second_word))
-                        list_of_champions.append(temp)
+                        selected_list.remove(str(second_word))
+                        selected_list.append(temp)
                         idx = 0
                     else:
                         idx += 1
@@ -215,10 +217,11 @@ def sortListOfChampions(): #I didn't want to use double for loop.
                     idx += 1
             else:
                 idx += 1
+    return selected_list
 
-    print("Here is the sorted list of champions: ")
-    for each_champion in list_of_champions:
-        print(str(each_champion))
+    #print("Here is the sorted list of champions: ")
+    #for each_champion in list_selected:
+    #   print(str(each_champion))
 
 
 def writeListOfChampionsToTXT():
@@ -265,6 +268,7 @@ def testingPandas():
 
     wins = 0
     losses = 0
+
     csvData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv")
     columns = list(csvData)
 
@@ -275,17 +279,41 @@ def testingPandas():
                 if all_comps['win / loss'][idx2] == 'win':
                     wins += 1
                     for each_column_of_columns in columns:
+                        row_to_be_sorted = []
                         row_to_be_written = ""
+                        row_to_be_written_in_file = []
                        #print("Here is the column : " + str(each_column_of_columns) + " | Here is the champion: " + str(all_comps[each_column][idx2]))
                         if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
-                            print("Found a match")
+                            print("Found a match | Here is the champion selected: " + str(all_comps[each_column][idx2]))
                             for (limiter_index, each_entry) in enumerate(all_comps):
-                                if str(all_comps[each_entry][idx2]) != "win":
+                                if str(all_comps[each_entry][idx2]) != "win" and str(all_comps[each_entry][idx2]) != str(all_comps[each_column][idx2]):
                                     if limiter_index < 4:
-                                        row_to_be_written += str(all_comps[each_entry][idx2]) + ","
+                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
                                     else:
-                                        row_to_be_written += str(all_comps[each_entry][idx2])
-                                    print("This is the entry for " + str(idx2) + ": " + str(all_comps[each_entry][idx2]))
+                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+                            sorted_list = sortListOfChampions(row_to_be_sorted)
+                            print("Here is the sorted list")
+                            for each_champion_in_sorted_list in sorted_list:
+                                print(str(each_champion_in_sorted_list))
+                            csvFile = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r', delimiter=',')
+                            for (csvIdx, each_column_of_csv) in enumerate(csvFile):
+                                for each_champion_of_sorted_list in sorted_list:
+                                    if str(each_champion_of_sorted_list) == str(each_column_of_csv):
+                                        row_to_be_written += str(each_champion_of_sorted_list) + ','
+                                        thing_to_be_written = (str(each_champion_of_sorted_list) + ',').strip()
+                                        row_to_be_written_in_file.append(thing_to_be_written)
+                                        break
+                                if csvIdx <= len(list(csvFile)) - 2:
+                                    row_to_be_written += ","
+                                    row_to_be_written_in_file.append("")
+                                else:
+                                    row_to_be_written += "win"
+                                    row_to_be_written_in_file.append("win")
+                            row_to_be_written_in_file.append(str())
+                            with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFileForWriting:
+                                writer = csv.writer(csvFileForWriting)
+                                writer.writerow(row_to_be_written_in_file)
+                                csvFileForWriting.close()
                             print("This is the row to be written: " + str(row_to_be_written))
                 elif all_comps['win / loss'][idx2] == 'loss':
                     losses += 1
@@ -307,23 +335,21 @@ def initializeHeatMapCSV():
                 stripped_row = each_row.strip()
                 total_header.append(str(stripped_row))
                 #print(str(stripped_row))
-            total_header.append("winrate")
-            total_header.append("number of games")
             writer.writerow(total_header)
             csvFile.close()
 
-def heatmapAttempt():
-    heatmapDataFrame = pd.DataFrame()
-
 
 def initializeChampList():
-    list_of_champions_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+')
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+') == True)):
+        list_of_champions_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+')
 
-    for each_row in list_of_champions_file:
-        stripped_row = each_row.strip()
-        list_of_heatmap_champs.append(stripped_row)
+        for each_row in list_of_champions_file:
+            stripped_row = each_row.strip()
+            list_of_heatmap_champs.append(stripped_row)
 
-    list_of_champions_file.close()
+        list_of_champions_file.close()
+    else:
+        print("List of champions already exists | Try deleting it and restarting")
 
 
 def initializeCompDir():
@@ -335,7 +361,7 @@ try:
     #getListOfSummoners()
     #createRiotAPIUrl()
     #getChampionList()
-    #sortListOfChampions()
+    #sortListOfChampions(list_of_champions)
     #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()              #Writing the Team compositions to CSV files.
