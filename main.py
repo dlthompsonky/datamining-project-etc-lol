@@ -38,17 +38,16 @@ class LosingComp:
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-9b64b358-fab1-40f2-8699-e3e6772c473e'
+api_key = 'RGAPI-6eeec84d-7fc5-4ceb-a85d-f61225db7a20'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
-list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
+list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'No Gank Incoming'),
                      lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
-                     lolWatcher_api_key.summoner.by_name(region, 'No Gank Incoming'),
+                     lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
                      lolWatcher_api_key.summoner.by_name(region, 'FM Fallen'),
                      lolWatcher_api_key.summoner.by_name(region, 'Airpiane'),
                      lolWatcher_api_key.summoner.by_name(region, 'Ominous Cow')]
-
 
 #Lists being used below
 list_of_puuids = []
@@ -171,6 +170,7 @@ def getChampionList():
 def sortListOfChampions(): #I didn't want to use double for loop.
     print("Starting the sorting")
     idx = 0
+
     while idx < len(list_of_champions):
         if idx == 0:
             idx += 1
@@ -178,24 +178,33 @@ def sortListOfChampions(): #I didn't want to use double for loop.
         elif idx > 0:
             first_word = str(list_of_champions[idx])
             second_word = str(list_of_champions[idx - 1])
-            print("Here is the first word: " + first_word)
-            print("Here is the second word: " + second_word)
+            #print("Here is the first word: " + first_word)
+            #print("Here is the second word: " + second_word)
             if first_word[0] < second_word[0]:
-                print("First word is out of place.")
+                #print("First word is out of place.")
                 temp = str(second_word)
                 list_of_champions.remove(str(second_word))
                 list_of_champions.append(temp)
                 idx = 0
             elif first_word[0] == second_word[0]:
                 if first_word[1] < second_word[1]:
-                    print("First word is out of place.")
+                    #print("First word is out of place.")
                     temp = str(second_word)
                     list_of_champions.remove(str(second_word))
                     list_of_champions.append(temp)
                     idx = 0
                 elif first_word[1] == second_word[1]:
-                    if first_word[2] > second_word[2]:
-                        print("First word is out of place.")
+                    if len(first_word) >= 3 and len(second_word) >= 3:
+                        if first_word[2] < second_word[2]:
+                            #print("First word is out of place.")
+                            temp = str(second_word)
+                            list_of_champions.remove(str(second_word))
+                            list_of_champions.append(temp)
+                            idx = 0
+                        else:
+                            idx += 1
+                    elif len(first_word) < len(second_word):
+                        #print("First word is shorter")
                         temp = str(second_word)
                         list_of_champions.remove(str(second_word))
                         list_of_champions.append(temp)
@@ -323,17 +332,17 @@ def initializeCompDir():
 
 
 try:
-    getListOfSummoners()
-    createRiotAPIUrl()
-    getChampionList()
-    sortListOfChampions()
+    #getListOfSummoners()
+    #createRiotAPIUrl()
+    #getChampionList()
+    #sortListOfChampions()
     #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()              #Writing the Team compositions to CSV files.
     #initializeCompDir()
     #initializeChampList()
-    #testingPandas()
     #initializeHeatMapCSV()
+    testingPandas()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
