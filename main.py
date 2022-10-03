@@ -38,12 +38,11 @@ class LosingComp:
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-6eeec84d-7fc5-4ceb-a85d-f61225db7a20'
+api_key = 'RGAPI-c2f1b3c6-35ac-4a1e-8494-b06063e74c65'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
-list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'No Gank Incoming'),
-                     lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
+list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
                      lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
                      lolWatcher_api_key.summoner.by_name(region, 'FM Fallen'),
                      lolWatcher_api_key.summoner.by_name(region, 'Airpiane'),
@@ -219,10 +218,6 @@ def sortListOfChampions(list_selected): #I didn't want to use double for loop.
                 idx += 1
     return selected_list
 
-    #print("Here is the sorted list of champions: ")
-    #for each_champion in list_selected:
-    #   print(str(each_champion))
-
 
 def writeListOfChampionsToTXT():
     champion_list_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'a+')
@@ -269,8 +264,14 @@ def testingPandas():
     wins = 0
     losses = 0
 
-    csvData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv")
+    csvData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", index_col="row_name")
     columns = list(csvData)
+
+    #This can be used to produce a Dataframe with null values easily
+    #heatmap_df = pd.DataFrame()
+    #heatmap_df = pd.concat([heatmap_df, csvData])
+    #print(heatmap_df.head)
+    print("=================================================================================================================")
 
     for (idx1, each_column) in enumerate(all_comps):
         if (str(all_comps[each_column][0]) != "loss") or (str(all_comps[each_column][0]) != "win") or (str(all_comps[each_column][0]) != "win / loss"):
@@ -297,19 +298,22 @@ def testingPandas():
                                 print(str(each_champion_in_sorted_list))
                             csvFile = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r', delimiter=',')
                             for (csvIdx, each_column_of_csv) in enumerate(csvFile):
+                                if (csvIdx == 0):
+                                    row_to_be_written_in_file.append(all_comps[each_column][idx2])
                                 for each_champion_of_sorted_list in sorted_list:
                                     if str(each_champion_of_sorted_list) == str(each_column_of_csv):
                                         row_to_be_written += str(each_champion_of_sorted_list) + ','
-                                        thing_to_be_written = (str(each_champion_of_sorted_list) + ',').strip()
+                                        thing_to_be_written = each_champion_of_sorted_list.strip()
                                         row_to_be_written_in_file.append(thing_to_be_written)
                                         break
-                                if csvIdx <= len(list(csvFile)) - 2:
-                                    row_to_be_written += ","
+                                row_to_be_written += ","
+                                if (csvIdx != 0):
                                     row_to_be_written_in_file.append("")
-                                else:
-                                    row_to_be_written += "win"
-                                    row_to_be_written_in_file.append("win")
-                            row_to_be_written_in_file.append(str())
+                            #This is what the row name should be / should be looking for \/ \/
+                            #                                               str(all_comps[each_column][idx2])
+                            #Here you need to work on it.
+
+
                             with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFileForWriting:
                                 writer = csv.writer(csvFileForWriting)
                                 writer.writerow(row_to_be_written_in_file)
@@ -331,16 +335,24 @@ def initializeHeatMapCSV():
         with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'a+', newline='') as csvFile:
             writer = csv.writer(csvFile)
             total_header = []
+            total_header.append(str("row_name"))
             for each_row in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
                 stripped_row = each_row.strip()
-                total_header.append(str(stripped_row))
+                total_header.append(stripped_row)
                 #print(str(stripped_row))
             writer.writerow(total_header)
+
+            for each_champion in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
+                total_single_champion_row = []
+                stripped_champion_row = each_champion.strip()
+                total_single_champion_row.append(stripped_champion_row)
+                writer.writerow(total_single_champion_row)
+
             csvFile.close()
 
 
 def initializeChampList():
-    if (not (exists("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+') == True)):
+    if (not (exists("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt") == True)):
         list_of_champions_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+')
 
         for each_row in list_of_champions_file:
@@ -366,9 +378,9 @@ try:
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()              #Writing the Team compositions to CSV files.
     #initializeCompDir()
-    #initializeChampList()
-    #initializeHeatMapCSV()
-    testingPandas()
+    initializeChampList()
+    initializeHeatMapCSV()
+    #testingPandas()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
