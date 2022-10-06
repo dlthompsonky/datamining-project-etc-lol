@@ -14,6 +14,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
 import pandas as pd
+from enum import Enum
 
 plt.style.use("seaborn")
 
@@ -38,7 +39,7 @@ class LosingComp:
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
 
-api_key = 'RGAPI-61a6526d-6b58-4d5f-9863-7ef3edcf0078'
+api_key = 'RGAPI-ea39341f-b3ec-4625-9c6d-8944cf5b3cc0'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
@@ -171,7 +172,6 @@ def getChampionList():
 
 
 def sortListOfChampions(list_selected): #I didn't want to use double for loop.
-    print("Starting the sorting")
     idx = 0
     selected_list = []
     selected_list = list_selected
@@ -183,17 +183,13 @@ def sortListOfChampions(list_selected): #I didn't want to use double for loop.
         elif idx > 0:
             first_word = str(selected_list[idx])
             second_word = str(selected_list[idx - 1])
-            #print("Here is the first word: " + first_word)
-            #print("Here is the second word: " + second_word)
             if first_word[0] < second_word[0]:
-                #print("First word is out of place.")
                 temp = str(second_word)
                 selected_list.remove(str(second_word))
                 selected_list.append(temp)
                 idx = 0
             elif first_word[0] == second_word[0]:
                 if first_word[1] < second_word[1]:
-                    #print("First word is out of place.")
                     temp = str(second_word)
                     selected_list.remove(str(second_word))
                     selected_list.append(temp)
@@ -201,7 +197,6 @@ def sortListOfChampions(list_selected): #I didn't want to use double for loop.
                 elif first_word[1] == second_word[1]:
                     if len(first_word) >= 3 and len(second_word) >= 3:
                         if first_word[2] < second_word[2]:
-                            #print("First word is out of place.")
                             temp = str(second_word)
                             selected_list.remove(str(second_word))
                             selected_list.append(temp)
@@ -209,7 +204,6 @@ def sortListOfChampions(list_selected): #I didn't want to use double for loop.
                         else:
                             idx += 1
                     elif len(first_word) < len(second_word):
-                        #print("First word is shorter")
                         temp = str(second_word)
                         selected_list.remove(str(second_word))
                         selected_list.append(temp)
@@ -251,75 +245,64 @@ def writeLCtoCSV():
         csvFile.close()
 
 
-def generateRow(sorted_list, selected_champion):
-    #This method is to generate the row by seeing the header of the heatmap_data.csv file and deciding based on how the character's are sorted what should be placed where
-    #This should later take into account the win / loss
-    print("Starting to generate row data.")
+class WinOrLoss(Enum):
+    WIN = 0
+    LOSS = 1
+
+
+def generateRow(sorted_list, selected_champion, win_or_loss):
     lines_read_in_csvFile = []
     row_of_selected_string = []
 
-    #First we are grabbing the lines in the CSV to then manipulate and rewrite them
+    if not isinstance(win_or_loss, WinOrLoss):
+        raise TypeError("Win or loss must be an instance of the Enum class")
+
     with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r', newline='') as csvFileForReading:
         lines_read_in_csvFile = csvFileForReading.readlines()
         csvFileForReading.close()
 
-    #Then we are going to grab the row of the champion we selected
     for (idx, each_row_in_lines) in enumerate(lines_read_in_csvFile):
         if idx != 0:
-            print("Here is each row in lines: " + each_row_in_lines.strip() + " | and here is what we're looking for: " + str(selected_champion))
             row_Idx_string = ""
             if "," in each_row_in_lines.strip():
                 split_list = each_row_in_lines.strip().split(",")
                 row_Idx_string = split_list[0]
+                if row_Idx_string == selected_champion:
+                    row_of_selected_string = split_list
+                    break
             else:
                 row_Idx_string = each_row_in_lines.strip()
-            if row_Idx_string == selected_champion:
-                row_of_selected_string.append(each_row_in_lines.strip())
-                break
-
-    print("Here is the row selected: " + str(row_of_selected_string))
+                if row_Idx_string == selected_champion:
+                    row_of_selected_string.append(each_row_in_lines.strip())
+                    break
 
     row_to_be_written_in_file = ""
     csvFile = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", engine='python')  # delimiter=',',  index_col=0, lineterminator="\r\n"
 
     for (csvIdx, each_column_of_csv) in enumerate(csvFile):
-        #found_champion = False
         if csvIdx == 0:
-            print("Length of the csvFile : " + str(len(csvFile)) + " | Here is the length of the other : " + str(len(row_of_selected_string)))
-            while len(row_of_selected_string) < len(csvFile): #Trying to set the length of the row array to the same as the columns (since we're doing a square heatmap)
+            split_list_of_csvFile = csvFile[each_column_of_csv]
+
+            while len(row_of_selected_string) < len(split_list_of_csvFile) + 1:
                 row_of_selected_string.append("")
-            print(" Here is the length of the other after : " + str(len(row_of_selected_string)))
-            print("Here is the first column: " + each_column_of_csv)
-            print("Here is the row of selected string after modification: " + str(row_of_selected_string).strip())
-            #row_to_be_written_in_file += str(selected_champion)
         else:
             for each_champion in sorted_list:
-                print("Here is the column: " + str(each_column_of_csv))
                 if str(each_champion) == str(each_column_of_csv):
-                    #print("Here is the each score of selected : " + str(each_score_of_selected_row))
                     if row_of_selected_string[csvIdx] == '':
-                        row_of_selected_string[csvIdx] = '1|1'
-                        #row_to_be_written_in_file = str(row_of_selected_string.strip())
+                        row_of_selected_string[csvIdx] = '1/1'
                         break
-                    elif '1' in row_of_selected_string[csvIdx]:
-                        temp_win_loss = row_of_selected_string[csvIdx].split('|')
-                        temp_wins = type(int(temp_win_loss[0]))
-                        temp_total_games = type(int(temp_win_loss[1]))
-                        temp_wins += 1
+                    elif '|' in row_of_selected_string[csvIdx]:
+                        temp_win_loss = row_of_selected_string[csvIdx].split('/')
+                        temp_wins = int(temp_win_loss[0])
+                        temp_total_games = int(temp_win_loss[1])
+                        if win_or_loss == WinOrLoss.WIN:
+                            temp_wins += 1
                         temp_total_games += 1
-                        temp_score = str(temp_wins) + '|' + str(temp_total_games)
+                        temp_score = str(temp_wins) + '/' + str(temp_total_games)
                         row_of_selected_string[csvIdx] = temp_score
-                        #row_to_be_written_in_file = str(row_of_selected_string.strip())
-                        print("Here is the win / losses: " + temp_score)
                         break
-        #if csvIdx < (len(csvFile) - 1):
-        #   row_to_be_written_in_file += ","
-    for each_entry in row_of_selected_string:
-        if each_entry == '':
-            row_to_be_written_in_file += ","
-        else:
-            row_to_be_written_in_file += (each_entry + ",")
-    #row_to_be_written_in_file = ''.join(row_of_selected_string)
+    row_to_be_written_in_file = ",".join(row_of_selected_string)
+
     return row_to_be_written_in_file
 
 
@@ -338,10 +321,6 @@ def testingPandas():
     csvData = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
     columns = list(csvData)
 
-    #This can be used to produce a Dataframe with null values easily
-    #heatmap_df = pd.DataFrame()
-    #heatmap_df = pd.concat([heatmap_df, csvData])
-    #print(heatmap_df.head)
     print("=================================================================================================================")
 
     for (idx1, each_column) in enumerate(all_comps):
@@ -353,7 +332,6 @@ def testingPandas():
                         if columnsIdx != 0:
                             if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
                                 row_to_be_sorted = []
-                                row_to_be_written_in_file = ""
 
                                 for (limiter_index, each_entry) in enumerate(all_comps):
                                     if str(all_comps[each_entry][idx2]) != "win" and str(all_comps[each_entry][idx2]) != str(all_comps[each_column][idx2]):
@@ -361,10 +339,9 @@ def testingPandas():
                                             row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
                                         else:
                                             row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+
                                 sorted_list = sortListOfChampions(row_to_be_sorted)
-
-                                row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2])
-
+                                row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2], WinOrLoss.WIN)
                                 lines_read_in_csvFile = []
 
                                 with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r+', newline='') as csvFileForReading:
@@ -373,24 +350,57 @@ def testingPandas():
 
                                 for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
                                     if lineIdx != 0:
-                                        #print("Here is the dataReader row: " + each_row_of_linesCSV.strip() + " | Here is what we're looking for: " + str(all_comps[each_column][idx2]))
-                                        if each_row_of_linesCSV.strip() == all_comps[each_column][idx2]:
-                                            lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n" #(str(lines_read_in_csvFile[lineIdx]).strip() +
-                                            print("This is the lines to be written in the csvFile: " + str(lines_read_in_csvFile[lineIdx]))
-                                            print("This is the row to be written: " + row_to_be_written_in_file)
+                                        split_list_of_lines = each_row_of_linesCSV.strip().split(",")
+                                        checker_champion = split_list_of_lines[0]
+                                        if checker_champion == all_comps[each_column][idx2]:
+                                            lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
                                             break
-
-                                #print(str(lines_read_in_csvFile).strip())
-                                #lines_read_in_csvFile.append("\n")
 
                                 with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForReading:
                                     csvFileForReading.writelines(lines_read_in_csvFile)
                                     csvFileForReading.close()
 
-                                print("This is the row to be written: " + str(row_to_be_written_in_file))
                 elif all_comps['win / loss'][idx2] == 'loss':
                     losses += 1
-                    #print("Looping and : " + str(all_comps['win / loss'][idx]))
+                    for (columnsIdx, each_column_of_columns) in enumerate(columns):
+                        if columnsIdx != 0:
+                            if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
+                                row_to_be_sorted = []
+
+                                for (limiter_index, each_entry) in enumerate(all_comps):
+                                    if str(all_comps[each_entry][idx2]) != "win" and str(
+                                            all_comps[each_entry][idx2]) != str(all_comps[each_column][idx2]):
+                                        if limiter_index < 4:
+                                            row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+                                        else:
+                                            row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+
+                                sorted_list = sortListOfChampions(row_to_be_sorted)
+                                row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2], WinOrLoss.LOSS)
+                                lines_read_in_csvFile = []
+
+                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r+', newline='') as csvFileForReading:
+                                    lines_read_in_csvFile = csvFileForReading.readlines()
+                                    csvFileForReading.close()
+
+                                for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
+                                    if lineIdx != 0:
+                                        split_list_of_lines = each_row_of_linesCSV.strip().split(",")
+                                        checker_champion = split_list_of_lines[0]
+                                        if checker_champion == all_comps[each_column][idx2]:
+                                            lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
+                                            break
+
+                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForReading:
+                                    csvFileForReading.writelines(lines_read_in_csvFile)
+                                    csvFileForReading.close()
+
+    #This can be used to produce a Dataframe with null values easily
+    heatmap_df = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
+    #tableSetup = heatmap_df.pivot('Champions Y', 'Champions X', 'Fraction').round(3)
+    sns.color_palette("rocket", as_cmap=True)
+    heatmap = sns.heatmap(heatmap_df)
+    print(heatmap)
 
     print("These are the wins: " + str(wins))
     print("These are the losses: " + str(losses))
