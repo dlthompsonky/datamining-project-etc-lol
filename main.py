@@ -43,7 +43,8 @@ api_key = 'RGAPI-ea39341f-b3ec-4625-9c6d-8944cf5b3cc0'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'   #Working with the north american region
 
-list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
+list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Always Invade'),
+                     lolWatcher_api_key.summoner.by_name(region, 'Quantum Bebop'),
                      lolWatcher_api_key.summoner.by_name(region, 'Sobileo'),
                      lolWatcher_api_key.summoner.by_name(region, 'FM Fallen'),
                      lolWatcher_api_key.summoner.by_name(region, 'Airpiane'),
@@ -218,11 +219,12 @@ def sortListOfChampions(list_selected): #I didn't want to use double for loop.
 
 
 def writeListOfChampionsToTXT():
-    champion_list_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'a+')
-    for each_champion in list_of_champions:
-        champion_list_file.write(str(each_champion))
-        champion_list_file.write('\n')
-    champion_list_file.close()
+    if not (exists(open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt") == True)):
+        champion_list_file = open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'a+')
+        for each_champion in list_of_champions:
+            champion_list_file.write(str(each_champion))
+            champion_list_file.write('\n')
+        champion_list_file.close()
 
 
 def writeTCtoCSV():
@@ -349,16 +351,16 @@ def testingPandas():
                                     csvFileForReading.close()
 
                                 for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
-                                    if lineIdx != 0:
-                                        split_list_of_lines = each_row_of_linesCSV.strip().split(",")
-                                        checker_champion = split_list_of_lines[0]
-                                        if checker_champion == all_comps[each_column][idx2]:
-                                            lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
-                                            break
+                                    #if lineIdx != 0:
+                                    split_list_of_lines = each_row_of_linesCSV.strip().split(",")
+                                    checker_champion = split_list_of_lines[0]
+                                    if checker_champion == all_comps[each_column][idx2]:
+                                        lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
+                                        break
 
-                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForReading:
-                                    csvFileForReading.writelines(lines_read_in_csvFile)
-                                    csvFileForReading.close()
+                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
+                                    csvFileForWriting.writelines(lines_read_in_csvFile)
+                                    csvFileForWriting.close()
 
                 elif all_comps['win / loss'][idx2] == 'loss':
                     losses += 1
@@ -384,26 +386,63 @@ def testingPandas():
                                     csvFileForReading.close()
 
                                 for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
-                                    if lineIdx != 0:
-                                        split_list_of_lines = each_row_of_linesCSV.strip().split(",")
-                                        checker_champion = split_list_of_lines[0]
-                                        if checker_champion == all_comps[each_column][idx2]:
-                                            lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
-                                            break
+                                    #if lineIdx != 0:
+                                    split_list_of_lines = each_row_of_linesCSV.strip().split(",")
+                                    checker_champion = split_list_of_lines[0]
+                                    if checker_champion == all_comps[each_column][idx2]:
+                                        lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
+                                        break
 
-                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForReading:
-                                    csvFileForReading.writelines(lines_read_in_csvFile)
-                                    csvFileForReading.close()
-
-    #This can be used to produce a Dataframe with null values easily
-    #heatmap_df = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
-    #tableSetup = heatmap_df.pivot('Champions Y', 'Champions X', 'Fraction').round(3)
-    #sns.color_palette("rocket", as_cmap=True)
-    #heatmap = sns.heatmap(tableSetup)
-    #print(heatmap)
+                                with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
+                                    csvFileForWriting.writelines(lines_read_in_csvFile)
+                                    csvFileForWriting.close()
+    changeFracToDecimals()
 
     print("These are the wins: " + str(wins))
     print("These are the losses: " + str(losses))
+
+
+def constructHeatMap():
+    total_column_labels = []
+    for each_row in open("D:\PyCharmProjects\DataScienceProject\listOfChampions.txt", 'r+'):
+        stripped_row = each_row.strip()
+        total_column_labels.append(stripped_row)
+
+    heatmap_df = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
+    #heatmap_df = heatmap_df.drop(heatmap_df.columns[[0,0]], axis=1)
+    heatmap_df.index.names = ["Champions"]
+    sns.color_palette("magma", as_cmap=True)
+    sns.set(font_scale=.5)
+    heatmap = sns.heatmap(heatmap_df, annot=False, linewidths=.025, linecolor='black', xticklabels=total_column_labels, yticklabels=total_column_labels)
+    heatmap.set_title("Champion Winrate Correspondance")
+    heatmap.set_yticklabels(heatmap.get_yticklabels(), rotation=0)
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=90)
+
+    plt.show()
+
+
+def changeFracToDecimals():
+    lines_read_in_csvFile = []
+
+    with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'r', newline='') as csvFileForReading:
+        lines_read_in_csvFile = csvFileForReading.readlines()
+        csvFileForReading.close()
+
+    for (tempIdx, each_row) in enumerate(lines_read_in_csvFile):
+        list_of_row = each_row.split(",")
+        for (tempIdx2, each_entry) in enumerate(list_of_row):
+            if "|" in each_entry:
+                list_of_fraction_numbers = each_entry.split("|")
+                wins = list_of_fraction_numbers[0]
+                total_games = list_of_fraction_numbers[1]
+                percentage_of_winning = (float(wins) / float(total_games))
+                list_of_row[tempIdx2] = round(percentage_of_winning, 3)
+        lines_read_in_csvFile[tempIdx] = (",".join(list(map(str, list_of_row))).strip() + "\n")
+    #lines_read_in_csvFile
+
+    with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
+        csvFileForWriting.writelines(lines_read_in_csvFile)
+        csvFileForWriting.close()
 
 
 def initializeHeatMapCSV():
@@ -454,9 +493,10 @@ try:
     #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()              #Writing the Team compositions to CSV files.
     #initializeCompDir()
-    initializeChampList()
-    initializeHeatMapCSV()
-    testingPandas()
+    #initializeChampList()
+    #initializeHeatMapCSV()
+    #testingPandas()
+    constructHeatMap()
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
