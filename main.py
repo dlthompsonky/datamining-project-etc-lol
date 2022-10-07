@@ -289,16 +289,16 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
             for each_champion in sorted_list:
                 if str(each_champion) == str(each_column_of_csv):
                     if row_of_selected_string[csvIdx] == '':
-                        row_of_selected_string[csvIdx] = '1/1'
+                        row_of_selected_string[csvIdx] = '1|1'
                         break
                     elif '|' in row_of_selected_string[csvIdx]:
-                        temp_win_loss = row_of_selected_string[csvIdx].split('/')
+                        temp_win_loss = row_of_selected_string[csvIdx].split('|')
                         temp_wins = int(temp_win_loss[0])
                         temp_total_games = int(temp_win_loss[1])
                         if win_or_loss == WinOrLoss.WIN:
                             temp_wins += 1
                         temp_total_games += 1
-                        temp_score = str(temp_wins) + '/' + str(temp_total_games)
+                        temp_score = str(temp_wins) + '|' + str(temp_total_games)
                         row_of_selected_string[csvIdx] = temp_score
                         break
     row_to_be_written_in_file = ",".join(row_of_selected_string)
@@ -396,17 +396,14 @@ def testingPandas():
                                     csvFileForReading.close()
 
     #This can be used to produce a Dataframe with null values easily
-    heatmap_df = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
+    #heatmap_df = pd.read_csv("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", delimiter=',', index_col=0)
     #tableSetup = heatmap_df.pivot('Champions Y', 'Champions X', 'Fraction').round(3)
-    sns.color_palette("rocket", as_cmap=True)
-    heatmap = sns.heatmap(heatmap_df)
-    print(heatmap)
+    #sns.color_palette("rocket", as_cmap=True)
+    #heatmap = sns.heatmap(tableSetup)
+    #print(heatmap)
 
     print("These are the wins: " + str(wins))
     print("These are the losses: " + str(losses))
-
-    #winrate_on_selected_champion = (wins / (wins + losses)) * 100
-    #print("The winrate of: " + str(selected_champion) + " " + str(winrate_on_selected_champion) + " %")
 
 
 def initializeHeatMapCSV():
