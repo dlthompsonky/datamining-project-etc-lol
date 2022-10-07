@@ -412,11 +412,12 @@ def constructHeatMap():
     #heatmap_df = heatmap_df.drop(heatmap_df.columns[[0,0]], axis=1)
     heatmap_df.index.names = ["Champions"]
     sns.color_palette("magma", as_cmap=True)
-    sns.set(font_scale=.5)
-    heatmap = sns.heatmap(heatmap_df, annot=False, linewidths=.025, linecolor='black', xticklabels=total_column_labels, yticklabels=total_column_labels)
+    sns.set(font_scale=.5, rc={'axes.facecolor': 'cornflowerblue', 'figure.facecolor': 'cornflowerblue'})
+    heatmap = sns.heatmap(heatmap_df, annot=False, linewidths=.025, linecolor='gray', xticklabels=total_column_labels, yticklabels=total_column_labels)
     heatmap.set_title("Champion Winrate Correspondance")
     heatmap.set_yticklabels(heatmap.get_yticklabels(), rotation=0)
     heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=90)
+    heatmap.xaxis.label.set_color('white')
 
     plt.show()
 
