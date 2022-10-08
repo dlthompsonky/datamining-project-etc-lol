@@ -29,7 +29,6 @@ class WinningComp:
     support = ''
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
 
-
 class LosingComp:
     topLaner = ''
     jungler = ''
@@ -37,7 +36,6 @@ class LosingComp:
     botLaner = ''
     support = ''
     #dataToBeWritten = [[topLaner], [jungler], [midLaner], [botLaner], [support]]
-
 
 api_key = 'RGAPI-1531ccee-58cc-4bbf-879d-5dd2ff0faa88'
 lolWatcher_api_key = LolWatcher(api_key)
@@ -58,11 +56,7 @@ url_list = []
 list_of_champions = []
 list_of_winning_comps = []
 list_of_losing_comps = []
-list_of_heatmap_champs = [[]]  #2D Array Syntax
-
-#Legacy values that could be used later.
-#selected_role = "Jungle"
-#selected_champion = "Belveth"
+list_of_heatmap_champs = [[]]
 
 
 def initializeFileHeaders():
@@ -109,7 +103,6 @@ def checkForTextFile():#This is going to check for a text file before we start t
         for x_match in list_of_matches:
             matchesSourcedFile.write(str(x_match))
             matchesSourcedFile.write('\n')
-            #print(str(x_match))
     matchesSourcedFile.close()
 
 
@@ -239,6 +232,7 @@ def writeWCtoCSV():
             writer.writerow([wc.topLaner, wc.jungler, wc.midLaner, wc.botLaner, wc.support, 'win'])
         csvFile.close()
 
+
 def writeLCtoCSV():
     with open("D:\PyCharmProjects\DataScienceProject\Comp_Data\losingComps.csv", 'a+', newline='') as csvFile:
         writer = csv.writer(csvFile)
@@ -307,7 +301,7 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
     return row_to_be_written_in_file
 
 
-def testingPandas():
+def constructHeatmapData():
     files = [file for file in os.listdir('./Comp_Data')]
     all_comps = pd.DataFrame()
 
@@ -433,7 +427,6 @@ def changeFracToDecimals():
                 percentage_of_winning = (float(wins) / float(total_games))
                 list_of_row[tempIdx2] = round(percentage_of_winning, 3)
         lines_read_in_csvFile[tempIdx] = (",".join(list(map(str, list_of_row))).strip() + "\n")
-    #lines_read_in_csvFile
 
     with open("D:\PyCharmProjects\DataScienceProject\heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
         csvFileForWriting.writelines(lines_read_in_csvFile)
@@ -480,18 +473,18 @@ def initializeCompDir():
 
 
 try:
-    #getListOfSummoners()
-    #createRiotAPIUrl()
-    #getChampionList()
-    #sortListOfChampions(list_of_champions)
-    #writeListOfChampionsToTXT() #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
-    #initializeFileHeaders()     #Here we're initializing the headers for the different team composition (CSV) files
-    #writeTCtoCSV()              #Writing the Team compositions to CSV files.
-    #initializeCompDir()
-    initializeChampList()
-    initializeHeatMapCSV()
-    testingPandas()
-    constructHeatMap()
+    #getListOfSummoners()                       #Getting Summoner's names and their Puuid
+    #createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
+    #getChampionList()                          #Getting List of Champions from games selected
+    #sortListOfChampions(list_of_champions)     #Sorting the list
+    #writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
+    #initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
+    #writeTCtoCSV()                             #Writing the Team compositions to CSV files.
+    #initializeCompDir()                        # n/a
+    #initializeChampList()                      #Initializing the CSV with the champ list
+    #initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
+    #constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data collected
+    constructHeatMap()                          #Using the CSV (with pandas / sns / matplot) to create Heatmap
 except HTTPError as err:
     if err.code == 429:
         time.sleep(120)
@@ -500,4 +493,3 @@ except HTTPError as err:
     else:
         print(err.code)
         pass
-
