@@ -37,9 +37,8 @@ class LosingComp:
     botLaner = ''
     support = ''
 
-time.sleep(10) #Just trying to let the program have time for the API's to not give me Too Many Requests (429) Error
-
-api_key = 'RGAPI-0f8df30e-7968-4eb8-bc6b-770433ad7dbf'
+# RIOT API wants the key to be refreshed (from their developer window) every 24 hours
+api_key = 'RGAPI-e819ddfd-f47e-4dda-b988-a01495bb4238'
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'
 
@@ -416,17 +415,20 @@ def constructHeatMap():
         stripped_row = each_row.strip()
         total_column_labels.append(stripped_row)
 
-#    Stylizing the Heatmap
     heatmap_df = pd.read_csv("heatmap_data.csv", delimiter=',', index_col=0)
+#    Stylizing the Heatmap
+    plt.figure(figsize=(11, 11))
+
     heatmap_df.index.names = ["Champions"]
     sns.color_palette("magma", as_cmap=True)
-    sns.set(font_scale=.5, rc={'axes.facecolor': 'cornflowerblue', 'figure.facecolor': 'cornflowerblue'})
-    heatmap = sns.heatmap(heatmap_df, annot=False, linewidths=.025, linecolor='black', xticklabels=total_column_labels, yticklabels=total_column_labels)
+    sns.set(font_scale=.55, style="ticks", rc={'axes.facecolor': 'cornflowerblue', 'figure.facecolor': 'cornflowerblue'})
+    heatmap = sns.heatmap(heatmap_df, cbar=True, vmax=1, vmin=0, annot=False, linewidths=.025, linecolor='black', xticklabels=total_column_labels, yticklabels=total_column_labels)
     heatmap.set_title("Champion Winrate Correspondance")
-    heatmap.set_yticklabels(heatmap.get_yticklabels(), rotation=0)
-    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=90)
-    heatmap.xaxis.label.set_color('white')
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=75)
 
+    heatmap.tick_params('both', length=10, width=1.5, which='both')
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -510,8 +512,8 @@ try:
     #initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
     #writeTCtoCSV()                             #Writing the Team compositions to CSV files.
     #initializeHeatMapListFromChampList()
-    initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
-    constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data collected
+    #initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
+    #constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
     constructHeatMap()                          #Using the CSV (with pandas / sns / matplot) to create Heatmap
 except HTTPError as err:
     if err.code == 429:
