@@ -19,7 +19,9 @@
     </section>
     <hr>
     <img src="HeatmapExample01.png" alt="Heatmap Image Example" title="Heatmap Example">
-    <p> <span style="font-size:0.75em"> Image sourced from Tyler1 & Rosethorn's games. <span> </p> 
+    <p> <span style="font-size:0.75em"> Image sourced 223 games coming from Tyler1 & Rosethorn's games. 
+    <br> Note the blue is null/no games found with that champion combination. 
+    <span> </p> 
     <hr>
     <section name="how-to-use">
       <h4> How To Use And Set Up </h4> 
