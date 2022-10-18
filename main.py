@@ -40,7 +40,7 @@ class LosingComp:
 
 
 # Manipulate API KEY - Needs to be refreshed every 24 hours
-api_key = 'RGAPI-8049698a-b314-4aa5-a5c2-6aa5dfc2049c'
+api_key = ''
 
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'
