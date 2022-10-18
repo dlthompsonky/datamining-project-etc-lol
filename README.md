@@ -18,6 +18,8 @@
         <ul> 
     </section>
     <hr>
+    <img src="HeatMapExample01.png" alt="Heatmap Image Example" title="Heatmap Example">
+    <hr>
     <section name="how-to-use">
       <h4> How To Use And Set Up </h4> 
       <p>
