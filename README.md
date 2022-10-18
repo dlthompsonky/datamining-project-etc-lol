@@ -1,4 +1,4 @@
-<h2> Esports (League of Legends) Datascience Project on Team Compatability </h2>
+<h2> DataScience Project on Esport Team Compatability (League of Legends) </h2>
 <h3> Hello! </h3> 
 <div>
     <section name="summary">
