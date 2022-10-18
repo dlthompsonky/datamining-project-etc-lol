@@ -1,25 +1,26 @@
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+#HELLO!
+#Make sure to read the Read Me for instructions on how to use.
+#
+#
+#
+# Importing Riotwatcher (to better use Riot's API system & gather names / matches easily).
+from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
+
+#File management and other
 import csv
 import os
 import sys
-from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
 from os.path import exists
 import json
 import urllib.request
 from urllib.error import HTTPError
 import time
+
 #below are the Data-Plotting modules:
-import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
 import pandas as pd
 from enum import Enum
-
-plt.style.use("seaborn")
-
-field_names_for_heatmap = []
-field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
 
 
 class WinningComp:
@@ -37,19 +38,25 @@ class LosingComp:
     botLaner = ''
     support = ''
 
-# RIOT API wants the key to be refreshed (from their developer window) every 24 hours
-api_key = 'RGAPI-e819ddfd-f47e-4dda-b988-a01495bb4238'
+
+# Manipulate API KEY - Needs to be refreshed every 24 hours
+api_key = 'RGAPI-8049698a-b314-4aa5-a5c2-6aa5dfc2049c'
+
 lolWatcher_api_key = LolWatcher(api_key)
 region = 'na1'
 
-list_of_summoners = [lolWatcher_api_key.summoner.by_name(region, 'Chxser'),
-                     lolWatcher_api_key.summoner.by_name(region, 'Frxg'),
-                     lolWatcher_api_key.summoner.by_name(region, '255'),
-                     lolWatcher_api_key.summoner.by_name(region, 'SageWabe'),
-                     lolWatcher_api_key.summoner.by_name(region, 'Loneforce')]
-time.sleep(1.5)
+# Manipulate List of Summoners (input your username(s)) | (Tyler 1 & Rose Thorn Username for placeholders to show pattern)
+list_of_names_to_manipulate =['COOKIEMONSTER123', 'RoseThorn']
 
-#Lists being used below
+list_of_summoners = []
+for each_name in list_of_names_to_manipulate:
+    list_of_summoners.append(lolWatcher_api_key.summoner.by_name(region, str(each_name)))
+
+plt.style.use("seaborn")
+field_names_for_heatmap = []
+field_names_for_team_comps = ['Top', 'Jungle', 'Mid', 'Bot', 'Support', 'win / loss']
+
+# Lists being used below
 list_of_puuids = []
 list_of_matches = []
 list_of_matches_from_file = []
@@ -502,18 +509,19 @@ def initializeCompDir():
         os.makedirs("Comp_Data")
 
 
+# Manipulate Methods (Make sure to read the README.txt)
 try:
-    #initializeCompDir()                        #Initializes Comp_Data Folder
-    #getListOfSummoners()                       #Getting Summoner's names and their Puuid
-    #createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
-    #getChampionList()                          #Getting List of Champions from games selected
-    #sortListOfChampions(list_of_champions)     #Sorting the list
-    #writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
-    #initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
-    #writeTCtoCSV()                             #Writing the Team compositions to CSV files.
-    #initializeHeatMapListFromChampList()
-    #initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
-    #constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
+    initializeCompDir()                        #Initializes Comp_Data Folder
+    getListOfSummoners()                       #Getting Summoner's names and their Puuid
+    createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
+    getChampionList()                          #Getting List of Champions from games selected
+    sortListOfChampions(list_of_champions)     #Sorting the list
+    writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
+    initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
+    writeTCtoCSV()                             #Writing the Team compositions to CSV files.
+    initializeHeatMapListFromChampList()
+    initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
+    constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
     constructHeatMap()                          #Using the CSV (with pandas / sns / matplot) to create Heatmap
 except HTTPError as err:
     if err.code == 429:
@@ -522,4 +530,3 @@ except HTTPError as err:
         pass
     else:
         print(err.code)
-        pass
