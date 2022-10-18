@@ -18,7 +18,8 @@
         <ul> 
     </section>
     <hr>
-    <img src="HeatMapExample01.png" alt="Heatmap Image Example" title="Heatmap Example">
+    <img src="HeatmapExample01.png" alt="Heatmap Image Example" title="Heatmap Example">
+    <p> <span style="font-size:0.75em"> Image sourced from Tyler1 & Rosethorn's games. <span> </p> 
     <hr>
     <section name="how-to-use">
       <h4> How To Use And Set Up </h4> 
