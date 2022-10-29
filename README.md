@@ -35,7 +35,7 @@
         <li> Input the summoner names you want data collected about in the "list_of_names_to_manipulate" array. 
         <li> If you're running this for the first time 
           <ul>
-             <li> IT WILL TAKE TIME -- Riot API can only be accessed so much per minute or else it will give error.
+             <li> IT WILL TAKE TIME -- Riot API can only be accessed so much per minute or else it will give 429 (Rate Limit) error.
              <li> Make sure that all of the methods (at the bottom of the program in the try - catch) are not commented out and they are set to run. 
           </ul>
          <li> If you're not running this for the first time and just want to display the heatmap, 
@@ -61,6 +61,7 @@
            <li> Program files can be further improved by not being only specific to the local path </li> 
            <li> Riot Developer Key Must be reset every 24 hours (since this is just temporary program and not for production)
            <li> Program speed could be optimized by manipulating how often data is fetched by Riot's API system. 
+           <li> If this were to be production key (from Riot), then previous 2 problems would be solved. 
            <li> Program needs better way of managing if you're running it for the first time, want to source files again, or just looking at heatmap.
          </ul>
       </section>
