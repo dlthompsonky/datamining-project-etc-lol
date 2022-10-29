@@ -1,12 +1,11 @@
 <h2> DataScience Project on Esport Team Compatability (League of Legends) </h2>
-<h3> Hello! </h3> 
 <div>
     <section name="summary">
       <p>
-        This software was originally developed by David Thompson as a means to statistically model 
-        winrates--in League of Legends--corresponding between characters if given player name(s). This would help to determine 
-        whether meta-analysis assumptions would fit your team or you as a player and how one (team or player)
-        could adapt for the future given current performance with certain champions they want to focus on. 
+        Program designed to statistically model winrates--in League of Legends--corresponding between characters 
+        if given player name(s). This would help to determine whether meta-analysis assumptions would fit your 
+        team or you as a player and how one (team or player) could adapt for the future given current performance 
+        with certain champions (characters) they want to focus on. 
       </p>
       <h4> Technology Stack: </h4>
         <ul> 
