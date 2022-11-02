@@ -1,4 +1,4 @@
-<h2> DataScience Project on Esport Team Compatability (League of Legends) </h2>
+<h2> Data Mining Project on Esport Team Compatability (League of Legends) </h2>
 <div>
     <section name="summary">
       <p>
