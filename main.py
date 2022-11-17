@@ -1,29 +1,24 @@
-#HELLO!
-#Make sure to read the Read Me for instructions on how to use.
-#
-#
+# HELLO!
+# Make sure to read, "README.md", for instructions on how to use.
 #
 # Importing Riotwatcher (to better use Riot's API system & gather names / matches easily).
-from riotwatcher import RiotWatcher, LolWatcher, ApiError #Importing Riotwatcher & other (Riot API)
-
-#File management and other
+from riotwatcher import RiotWatcher, LolWatcher, ApiError
+# File management and other:
 import csv
 import os
-import sys
 from os.path import exists
 import json
 import urllib.request
 from urllib.error import HTTPError
 import time
 from dotenv import load_dotenv
-
-load_dotenv()
-
-#below are the Data-Plotting modules:
+# Below are the Data-Plotting modules:
 import seaborn as sns
 import matplotlib.pylab as plt
 import pandas as pd
 from enum import Enum
+
+load_dotenv()
 
 
 class WinningComp:
@@ -53,7 +48,11 @@ else:
     print("Error getting API_KEY")
     exit()
 
-list_of_names_to_manipulate = ['COOKIEMONSTER123', 'RoseThorn']
+list_of_names_to_manipulate = ['PwVx Hc9999na', 'c2 meteos', 'Wakanda f0rever', 'MU APA', 'SiddyWiddy123',
+                               'Twitchtv Cupic', 'winnie poohbear', 'Topo', 'Fishlord', 'zeyzal7',
+                               'Wx Mjm978244659', 'winstxn', 'ctrI c', 'Davemon', 'VEGETOOOOOOOOOOO',
+                               'duoking1', 'Pentaless', 'dog kachu', 'TTV KoKooPuffs', 'Nikkone',
+                               '100 Tenacity', 'Rebopah', 'known win trader', 'FORA999', '100 Sword']
 
 list_of_summoners = []
 for each_name in list_of_names_to_manipulate:
@@ -73,15 +72,15 @@ list_of_winning_comps = []
 list_of_losing_comps = []
 list_of_heatmap_champs = [[]]
 
-
 def initializeFileHeaders():
+    print("Initializing file headers.")
     initializeWinningCompFileHeader()
     initializeLosingCompFileHeader()
 
 
 def initializeWinningCompFileHeader():
-    if (not (exists("winningComps.csv") == True)):
-        csvFile = open("Comp_Data/winningComps.csv", 'w', newline='') #D:\PyCharmProjects\DataScienceProject\Comp_Data\
+    if not exists("winningComps.csv") is True:
+        csvFile = open("Comp_Data/winningComps.csv", 'w', newline='')
         writer = csv.writer(csvFile)
         writer.writerow(field_names_for_team_comps)
         print("Initializing Winning Comp File & Header")
@@ -89,8 +88,8 @@ def initializeWinningCompFileHeader():
 
 
 def initializeLosingCompFileHeader():
-    if (not (exists("losingComps.csv") == True)):
-        csvFile = open("Comp_Data/losingComps.csv", 'w', newline='') #D:\PyCharmProjects\DataScienceProject\Comp_Data\
+    if not exists("losingComps.csv") is True:
+        csvFile = open("Comp_Data/losingComps.csv", 'w', newline='')
         writer = csv.writer(csvFile)
         writer.writerow(field_names_for_team_comps)
         print("Initializing Losing Comp File & Header")
@@ -102,46 +101,47 @@ def areThereMatchDuplicates():
     list_of_matches_from_file = matchesSourcedFile.readlines()
     matchesSourcedFile.close()
 
-    if(set(list_of_matches).isdisjoint(set(list_of_matches_from_file)) and not (len(list_of_matches_from_file) > 0)): #If they do not have duplicates and they are not empty
+    if set(list_of_matches).isdisjoint(set(list_of_matches_from_file)) and not (len(list_of_matches_from_file) > 0):  # If they do not have duplicates and they are not empty
         return False
     else:
         return True
 
 
-def checkForTextFile():#This is going to check for a text file before we start to manipulate data to put into it.
+def checkForTextFile():  # This is going to check for a text file before we start to manipulate data to put into it.
     matchesSourcedFile = open("matchesSourcedFile.txt", 'a+')
-    if(areThereMatchDuplicates()):
+    if areThereMatchDuplicates():
         print("There are duplicates")
         return
     else:
         print("There are no duplicates")
         for x_match in list_of_matches:
-            matchesSourcedFile.write(str(x_match))
-            matchesSourcedFile.write('\n')
+            matchesSourcedFile.write(str(x_match) + '\n')
     matchesSourcedFile.close()
 
 
-def getListOfSummoners(): #Prints list of the summoner objects (This includes a lot of information)
+# Prints list of the summoner objects (This includes a lot of information)
+def getListOfSummoners():
     for x_puuid_id in list_of_summoners:
-        list_of_puuids.append(x_puuid_id['puuid']) #This is to collect the accountId of each account
+        list_of_puuids.append(x_puuid_id['puuid'])
     for x_puuid in list_of_puuids:
-        for x_matches in range(0, 19): #If you don't put the range and 0, 19 in parenthesis, it will not loop through them all it will only go through the selected numbers
+        for x_matches in range(0, 19):
             list_of_matches.append(lolWatcher_api_key.match.matchlist_by_puuid(region, x_puuid)[x_matches])
-        time.sleep(1.5)
+            time.sleep(.25)  # Trying to slow down requests
     print("This is how many matches have been sourced : " + str(len(list_of_matches)))
     checkForTextFile()
 
 
 def createRiotAPIUrl():
+    print("Creating URLs to be mined.")
     for x_match in list_of_matches:
         url_list.append('https://americas.api.riotgames.com/lol/match/v5/matches/' + str(x_match) + '?api_key=' + str(api_key))
 
 
 def getChampionList():
     try:
+        print("Starting to get champion list.")
         for x_url in url_list:
-            #print("Looping")
-            time.sleep(1.5) #Cannot request all of the requests at the same time, so we have to slow down the number of requests by using time.sleep
+            # print("Looping")
             with urllib.request.urlopen(x_url) as url:
                 data = json.loads(url.read().decode())
                 wc = WinningComp()
@@ -176,16 +176,15 @@ def getChampionList():
                             lc.botLaner = data['info']['participants'][i]['championName']
                         elif data['info']['participants'][i]['individualPosition'] == "UTILITY":
                             lc.support = data['info']['participants'][i]['championName']
-                    if list_of_champions.count(data['info']['participants'][i]['championName']) > 0 and len(list_of_champions) > 0: #Checking for duplicates in the list of champions
-                        time.sleep(1.5)
-                        print("The champion : " + str(data['info']['participants'][i]['championName']) + " is already in the list")
+                    if list_of_champions.count(data['info']['participants'][i]['championName']) > 0 and len(list_of_champions) > 0:  # Checking for duplicates in the list of champions
+                        continue
                     else:
                         list_of_champions.append(data['info']['participants'][i]['championName'])
-                    time.sleep(1.5)
+                    time.sleep(1)
                 list_of_winning_comps.append(wc)
                 list_of_losing_comps.append(lc)
     except HTTPError as err:
-        print(err) #There is better error handling than this. Just using pass as placement for big issues right now.
+        print(err)  # There is better error handling than this. Just using pass as placement for big issues right now.
         pass
 
 
@@ -236,6 +235,7 @@ def sortListOfChampions(list_selected):
 
 
 def writeListOfChampionsToTXT():
+    print("Writing champion list to TXT file")
     if not (exists("listOfChampions.txt") is True):
         champion_list_file = open("listOfChampions.txt", 'a+')
         for each_champion in list_of_champions:
@@ -245,6 +245,7 @@ def writeListOfChampionsToTXT():
 
 
 def writeTCtoCSV():
+    print("Writing TC to CSV")
     writeWCtoCSV()
     writeLCtoCSV()
 
@@ -291,14 +292,12 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
                 break
         else:
             row_Idx_string = str(each_row_in_lines).strip()
-            print("Here is the rowidxstring: " + str(row_Idx_string) + "| Here is the selected champ: " + str(selected_champion))
             if str(row_Idx_string) == str(selected_champion):
                 print("Found a match!")
                 row_of_selected_string.append(row_Idx_string)
                 break
 
-    print(str(row_of_selected_string))
-    csvFile = pd.read_csv("heatmap_data.csv", engine='python')  # delimiter=',',  index_col=0, lineterminator="\r\n"
+    csvFile = pd.read_csv("heatmap_data.csv", engine='python')
 
     for (csvIdx, each_column_of_csv) in enumerate(csvFile):
         if csvIdx == 0:
@@ -307,9 +306,6 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
             while len(row_of_selected_string) < len(split_list_of_csvFile) + 1:
                 row_of_selected_string.append("")
         else:
-            print("Here is the row of selected string: " + str(row_of_selected_string))
-            print("Here is the length of the row of selected: " + str(len(row_of_selected_string)) + " | Here is the length of the csv: " + str(len(csvFile)))
-
             for each_champion in sorted_list:
                 if str(each_champion) == str(each_column_of_csv):
                     if row_of_selected_string[csvIdx] == '':
@@ -329,7 +325,6 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
                         row_of_selected_string[csvIdx] = temp_score
                         break
     row_to_be_written_in_file = ",".join(row_of_selected_string)
-    print(str(row_to_be_written_in_file))
 
     return row_to_be_written_in_file
 
@@ -337,10 +332,11 @@ def generateRow(sorted_list, selected_champion, win_or_loss):
 def constructHeatmapData():
     files = [file for file in os.listdir('./Comp_Data')]
     all_comps = pd.DataFrame()
-
     for file in files:
         df = pd.read_csv("./Comp_Data/" + file)
         all_comps = pd.concat([all_comps, df]).reset_index(drop=True)
+
+    print("Constructing heatmap data.")
     print(all_comps.head())
 
     wins = 0
@@ -348,100 +344,67 @@ def constructHeatmapData():
 
     csvData = pd.read_csv("heatmap_data.csv", delimiter=',', index_col=0)
     columns = list(csvData)
+    print("===========================================================================================================")
 
-    print("=================================================================================================================")
+    for (idx1, each_column) in enumerate(all_comps[:-1]):
+        # if (str(all_comps[each_column]) != "loss") or (str(all_comps[each_column]) != "win") or (str(all_comps[each_column]) != "win / loss"):
+        for (idx2, each_row) in enumerate(all_comps[each_column]):
+            if all_comps['win / loss'][idx2] == 'win':
+                compareAndConstruct(columns, all_comps, each_column, idx2, WinOrLoss.WIN)
+            elif all_comps['win / loss'][idx2] == 'loss':
+                compareAndConstruct(columns, all_comps, each_column, idx2, WinOrLoss.LOSS)
 
-    # loop through each column in every comp
-    for (idx1, each_column) in enumerate(all_comps):
-        #If the column is the last column
-        if (str(all_comps[each_column]) != "loss") or (str(all_comps[each_column]) != "win") or (str(all_comps[each_column]) != "win / loss"):
-            for (idx2, each_row) in enumerate(all_comps[each_column]):
-                if all_comps['win / loss'][idx2] == 'win':
-                    wins += 1
-                    for (columnsIdx, each_column_of_columns) in enumerate(columns):
-                        if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
-                            row_to_be_sorted = []
-
-                            for (limiter_index, each_entry) in enumerate(all_comps):
-                                if str(all_comps[each_entry][idx2]) != "win" and str(all_comps[each_entry][idx2]) != str(all_comps[each_column][idx2]):
-                                    if limiter_index < 4:
-                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
-                                    else:
-                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
-
-                            sorted_list = sortListOfChampions(row_to_be_sorted)
-                            row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2], WinOrLoss.WIN)
-                            lines_read_in_csvFile = []
-
-                            with open("heatmap_data.csv", 'r+', newline='') as csvFileForReading:
-                                lines_read_in_csvFile = csvFileForReading.readlines()
-                                csvFileForReading.close()
-
-                            for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
-                                split_list_of_lines = each_row_of_linesCSV.strip().split(",")
-                                checker_champion = split_list_of_lines[0]
-                                if checker_champion == all_comps[each_column][idx2]:
-                                    lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
-                                    break
-
-                            with open("heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
-                                csvFileForWriting.writelines(lines_read_in_csvFile)
-                                csvFileForWriting.close()
-                elif all_comps['win / loss'][idx2] == 'loss':
-                    losses += 1
-                    for (columnsIdx, each_column_of_columns) in enumerate(columns):
-                        if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
-                            row_to_be_sorted = []
-
-                            for (limiter_index, each_entry) in enumerate(all_comps):
-                                if str(all_comps[each_entry][idx2]) != "win" and str(
-                                        all_comps[each_entry][idx2]) != str(all_comps[each_column][idx2]):
-                                    if limiter_index < 4:
-                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
-                                    else:
-                                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
-
-                            sorted_list = sortListOfChampions(row_to_be_sorted)
-                            row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2], WinOrLoss.LOSS)
-                            lines_read_in_csvFile = []
-
-                            with open("heatmap_data.csv", 'r+', newline='') as csvFileForReading:
-                                lines_read_in_csvFile = csvFileForReading.readlines()
-                                csvFileForReading.close()
-
-                            for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
-                                split_list_of_lines = each_row_of_linesCSV.strip().split(",")
-                                checker_champion = split_list_of_lines[0]
-                                if checker_champion == all_comps[each_column][idx2]:
-                                    lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
-                                    break
-
-                            with open("heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
-                                csvFileForWriting.writelines(lines_read_in_csvFile)
-                                csvFileForWriting.close()
     changeFracToDecimals()
 
-    print("These are the wins: " + str(wins))
-    print("These are the losses: " + str(losses))
+
+def compareAndConstruct(columns, all_comps, each_column, idx2, win_or_loss):
+    for (columnsIdx, each_column_of_columns) in enumerate(columns):
+        if str(each_column_of_columns) == str(all_comps[each_column][idx2]):
+            row_to_be_sorted = []
+            for (limiter_index, each_entry) in enumerate(all_comps):
+                if str(all_comps[each_entry][idx2]) != "win" and str(all_comps[each_entry][idx2]) != str(
+                        all_comps[each_column][idx2]):
+                    if limiter_index < 4:
+                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+                    else:
+                        row_to_be_sorted.append(str(all_comps[each_entry][idx2]))
+
+            sorted_list = sortListOfChampions(row_to_be_sorted)
+            row_to_be_written_in_file = generateRow(sorted_list, all_comps[each_column][idx2], win_or_loss)
+            lines_read_in_csvFile = []
+
+            with open("heatmap_data.csv", 'r+', newline='') as csvFileForReading:
+                lines_read_in_csvFile = csvFileForReading.readlines()
+                csvFileForReading.close()
+
+            for (lineIdx, each_row_of_linesCSV) in enumerate(lines_read_in_csvFile):
+                split_list_of_lines = each_row_of_linesCSV.strip().split(",")
+                checker_champion = split_list_of_lines[0]
+                if checker_champion == all_comps[each_column][idx2]:
+                    lines_read_in_csvFile[lineIdx] = row_to_be_written_in_file + "\n"
+                    break
+
+            with open("heatmap_data.csv", 'w+', newline='') as csvFileForWriting:
+                csvFileForWriting.writelines(lines_read_in_csvFile)
+                csvFileForWriting.close()
 
 
 def constructHeatMap():
+    print("Constructing heatmap now.")
     total_column_labels = []
     for each_row in open("listOfChampions.txt", 'r+'):
         stripped_row = each_row.strip()
         total_column_labels.append(stripped_row)
 
     heatmap_df = pd.read_csv("heatmap_data.csv", delimiter=',', index_col=0)
-#    Stylizing the Heatmap
+    # Stylizing the Heatmap
     plt.figure(figsize=(11, 11))
-
     heatmap_df.index.names = ["Champions"]
     sns.color_palette("magma", as_cmap=True)
     sns.set(font_scale=.55, style="ticks", rc={'axes.facecolor': 'cornflowerblue', 'figure.facecolor': 'cornflowerblue'})
     heatmap = sns.heatmap(heatmap_df, cbar=True, vmax=1, vmin=0, annot=False, linewidths=.025, linecolor='black', xticklabels=total_column_labels, yticklabels=total_column_labels)
-    heatmap.set_title("Champion Winrate Correspondance")
+    heatmap.set_title("Champion Win-rate Correspondence")
     heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=75)
-
     heatmap.tick_params('both', length=10, width=1.5, which='both')
 
     plt.tight_layout()
@@ -472,7 +435,8 @@ def changeFracToDecimals():
 
 
 def initializeHeatMapCSV():
-    if (not (exists("heatmap_data.csv") == True)):
+    print("Initializing heatmap CSV.")
+    if not exists("heatmap_data.csv") is True:
         with open("heatmap_data.csv", 'a+', newline='') as csvFile:
             writer = csv.writer(csvFile)
             total_header = []
@@ -480,7 +444,6 @@ def initializeHeatMapCSV():
             for each_row in open("listOfChampions.txt", 'r+'):
                 stripped_row = each_row.strip()
                 total_header.append(stripped_row)
-                #print(str(stripped_row))
             writer.writerow(total_header)
         csvFile.close()
 
@@ -500,6 +463,7 @@ def initializeHeatMapCSV():
 
 
 def initializeHeatMapListFromChampList():
+    print("Initializing Heatmap List")
     if exists("listOfChampions.txt"):
         list_of_champions_file = open("listOfChampions.txt", 'r+')
         list_of_champions_file_list = list_of_champions_file.readlines()
@@ -520,22 +484,19 @@ def initializeCompDir():
 
 # Manipulate Methods (Make sure to read the README.txt)
 try:
-    #initializeCompDir()                        #Initializes Comp_Data Folder
-    #getListOfSummoners()                       #Getting Summoner's names and their Puuid
-    #createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
-    #getChampionList()                          #Getting List of Champions from games selected
-    #sortListOfChampions(list_of_champions)     #Sorting the list
-    #writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
-    #initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
-    #writeTCtoCSV()                             #Writing the Team compositions to CSV files.
-    #initializeHeatMapListFromChampList()
-    #initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
-    #constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
-    constructHeatMap()                          #Using the CSV (with pandas / sns / matplot) to create Heatmap
+    initializeCompDir()                        # Initializes Comp_Data Folder
+    getListOfSummoners()                       # Getting Summoner's names and their puu_id
+    createRiotAPIUrl()                         # Getting Riot Url (to better access their APIs)
+    getChampionList()                          # Getting List of Champions from games selected
+    sortListOfChampions(list_of_champions)     # Sorting the list
+    writeListOfChampionsToTXT()                # Writing "getChampionList" so it doesn't have to be used repeatedly
+    initializeFileHeaders()                    # Initializing the headers for the different team composition (CSV) files
+    writeTCtoCSV()                             # Writing the Team compositions to CSV files.
+    initializeHeatMapListFromChampList()
+    initializeHeatMapCSV()                     # Initializing Heatmap CSV (Prepping the formatting columns/ header)
+    constructHeatmapData()                     # Forming all heatmap data from the previously taken Api data
+    constructHeatMap()                         # Using the CSV (with pandas / sns / matplot) to create Heatmap
 except HTTPError as err:
     if err.code == 429:
-        time.sleep(120)
         print("Requesting too much")
-        pass
-    else:
-        print(err.code)
+        exit()

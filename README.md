@@ -10,7 +10,6 @@
       <h4> Technology Stack: </h4>
         <ul> 
           <li> Python </li>
-          <li> Numpy </li>
           <li> Pandas </li>
           <li> Matlab plot </li>
           <li> Seaborn </li> 
@@ -36,7 +35,7 @@
         <li> If you're running this for the first time 
           <ul>
              <li> IT WILL TAKE TIME -- Riot API can only be accessed so much per minute or else it will give 429 (Rate Limit) error.
-             <li> Make sure that all of the methods (at the bottom of the program in the try - catch) are not commented out and they are set to run. 
+             <li> Make sure that all methods (at the bottom of the program in the try - catch) are not commented out, and they are set to run. 
           </ul>
          <li> If you're not running this for the first time and just want to display the heatmap, 
            <ul>
@@ -57,7 +56,7 @@
         <h3> Notes for future development: </h3>
          <ul>
            <li> Program needs a UI / UX to be more user-friendly. </li>
-           <li> Program files can be better maanged by concatenating the file names with the list of names taken and checking to see if they exist. </li>
+           <li> Program files can be better managed by concatenating the file names with the list of names taken and checking to see if they exist. </li>
            <li> Program files can be further improved by not being only specific to the local path </li> 
            <li> Riot Developer Key Must be reset every 24 hours (since this is just temporary program and not for production)
            <li> Program speed could be optimized by manipulating how often data is fetched by Riot's API system. 
