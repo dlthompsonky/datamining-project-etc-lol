@@ -44,14 +44,6 @@
       <ol>
     </section>
     <hr>
-      <section name="short-comings">
-        <h3> Short-comings Note: </h3>
-        <p>
-          The short-comings of this software is that it does not give a direct solution, but helps to determine
-          the problems within (team's or player's) gameplay. 
-        </p>
-    </section>
-    <hr>
       <section name="notes"> 
         <h3> Notes for future development: </h3>
          <ul>
