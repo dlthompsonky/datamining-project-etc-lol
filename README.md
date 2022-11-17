@@ -17,7 +17,7 @@
     </section>
     <hr>
     <img src="HeatmapExample01.png" alt="Heatmap Image Example" title="Heatmap Example">
-    <p> <span style="font-size:0.75em"> Image sourced 223 games coming from Tyler1 & Rosethorn's games. 
+    <p> <span style="font-size:0.75em"> Image sourced 475 games coming from top 25 players on 11/17/2022. 
     <br> Note the blue is null/no games found with that champion combination. 
     <span> </p> 
     <hr>
@@ -58,9 +58,6 @@
            <li> Program needs a UI / UX to be more user-friendly. </li>
            <li> Program files can be better managed by concatenating the file names with the list of names taken and checking to see if they exist. </li>
            <li> Program files can be further improved by not being only specific to the local path </li> 
-           <li> Riot Developer Key Must be reset every 24 hours (since this is just temporary program and not for production)
-           <li> Program speed could be optimized by manipulating how often data is fetched by Riot's API system. 
-           <li> If this were to be production key (from Riot), then previous 2 problems would be solved. 
            <li> Program needs better way of managing if you're running it for the first time, want to source files again, or just looking at heatmap.
          </ul>
       </section>
