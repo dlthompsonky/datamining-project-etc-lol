@@ -15,6 +15,9 @@ import json
 import urllib.request
 from urllib.error import HTTPError
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #below are the Data-Plotting modules:
 import seaborn as sns
@@ -40,13 +43,17 @@ class LosingComp:
 
 
 # Manipulate API KEY - Needs to be refreshed every 24 hours
-api_key = ''
-
-lolWatcher_api_key = LolWatcher(api_key)
+api_key = os.getenv("API_KEY")
 region = 'na1'
 
-# Manipulate List of Summoners (input your username(s)) | (Tyler 1 & Rose Thorn Username for placeholders to show pattern)
-list_of_names_to_manipulate =['COOKIEMONSTER123', 'RoseThorn']
+if api_key and api_key != '':
+    print("Success getting API_KEY")
+    lolWatcher_api_key = LolWatcher(api_key)
+else:
+    print("Error getting API_KEY")
+    exit()
+
+list_of_names_to_manipulate = ['COOKIEMONSTER123', 'RoseThorn']
 
 list_of_summoners = []
 for each_name in list_of_names_to_manipulate:
@@ -229,7 +236,7 @@ def sortListOfChampions(list_selected):
 
 
 def writeListOfChampionsToTXT():
-    if not (exists("listOfChampions.txt") == True):
+    if not (exists("listOfChampions.txt") is True):
         champion_list_file = open("listOfChampions.txt", 'a+')
         for each_champion in list_of_champions:
             champion_list_file.write(str(each_champion))
@@ -344,7 +351,9 @@ def constructHeatmapData():
 
     print("=================================================================================================================")
 
+    # loop through each column in every comp
     for (idx1, each_column) in enumerate(all_comps):
+        #If the column is the last column
         if (str(all_comps[each_column]) != "loss") or (str(all_comps[each_column]) != "win") or (str(all_comps[each_column]) != "win / loss"):
             for (idx2, each_row) in enumerate(all_comps[each_column]):
                 if all_comps['win / loss'][idx2] == 'win':
@@ -511,17 +520,17 @@ def initializeCompDir():
 
 # Manipulate Methods (Make sure to read the README.txt)
 try:
-    initializeCompDir()                        #Initializes Comp_Data Folder
-    getListOfSummoners()                       #Getting Summoner's names and their Puuid
-    createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
-    getChampionList()                          #Getting List of Champions from games selected
-    sortListOfChampions(list_of_champions)     #Sorting the list
-    writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
-    initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
-    writeTCtoCSV()                             #Writing the Team compositions to CSV files.
-    initializeHeatMapListFromChampList()
-    initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
-    constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
+    #initializeCompDir()                        #Initializes Comp_Data Folder
+    #getListOfSummoners()                       #Getting Summoner's names and their Puuid
+    #createRiotAPIUrl()                         #Getting Riot Url (to better access their API's)
+    #getChampionList()                          #Getting List of Champions from games selected
+    #sortListOfChampions(list_of_champions)     #Sorting the list
+    #writeListOfChampionsToTXT()                #Writing the list of champions that we got previously so the, "getChampionList" doesn't have to be used repeatedly
+    #initializeFileHeaders()                    #Here we're initializing the headers for the different team composition (CSV) files
+    #writeTCtoCSV()                             #Writing the Team compositions to CSV files.
+    #initializeHeatMapListFromChampList()
+    #initializeHeatMapCSV()                     #Initializing Heatmap CSV (Prepping the formatting columns/ header)
+    #constructHeatmapData()                     #Forming all of the heatmap data from the previously taken Api data that has been cleaned and collected
     constructHeatMap()                          #Using the CSV (with pandas / sns / matplot) to create Heatmap
 except HTTPError as err:
     if err.code == 429:
